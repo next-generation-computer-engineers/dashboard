@@ -8,6 +8,7 @@ import {
   FolderOpen,
   CalendarPlus,
   ExternalLink,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { assignmentsForMember, getClass } from "@/data/seed";
@@ -152,6 +153,17 @@ function TodayClassCard({
           <Video className="h-3.5 w-3.5" />
           Join Zoom
         </a>
+        {cls.whatsappUrl && (
+          <a
+            href={cls.whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-9 items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] px-3 text-sm hover:bg-[var(--surface-hover)]"
+          >
+            <MessageCircle className="h-3.5 w-3.5" />
+            WhatsApp
+          </a>
+        )}
         <a
           href={cls.attendanceSheetUrl}
           target="_blank"

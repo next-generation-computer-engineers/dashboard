@@ -1,50 +1,32 @@
 /**
  * Firestore schema for CENG Volunteer Platform
  *
- * Classes are hubs that link out to Google Workspace (Sheets / Drive / Docs / Slides / Zoom),
- * matching the Master Spreadsheet session columns — not an in-app attendance tool.
+ * Deploy path: seed with `npm run seed:firestore`, then the app reads
+ * members/teams/classes from Firestore when Firebase is configured.
+ * Local seed JSON remains a fallback for offline / demo mode.
  *
  * Collections:
  *
- * users/{uid}
- *   authUid, fullName, preferredName, bio, pfpUrl,
- *   personalEmail, schoolEmail, cengEmail, phone, school, grade, affiliation,
- *   linkedIn, portfolio, roleIds[], teamIds[],
- *   status, onboardingStatus, searchKeywords[], title,
- *   joinedAt, createdAt, updatedAt
+ * members/{memberId}
+ *   Full volunteer profile (source of truth for directory + auth matching)
+ *   personalEmail, schoolEmail?, cengEmail?, cengEmailAliases?[],
+ *   emails[] — lowercased union of all emails for array-contains queries
+ *   authUid?, roleIds[], teamIds[], status, onboardingStatus, …
  *
- * roles/{roleId}
- *   key, name, description, scope, permissions[], color, isSystem, sortOrder
+ * users/{uid}  (Firebase Auth uid)
+ *   Thin link: memberId, email, displayName?, linkedAt, updatedAt
  *
- * teams/{teamId}
- *   name, slug, description, leadIds[], memberIds[], color, icon
- *
- * sessions/{sessionId}
- *   name, season, year, startDate, endDate, isActive
- *
- * classes/{classId}
- *   sessionId, name, subject, sessionLabel, dayOfWeek, dateRange,
- *   studentCountLabel, zoomLink, zoomMeetingId,
- *   attendanceSheetUrl, curriculumFolderUrl, classFolderUrl,
- *   whatsappUrl, parentPresentationUrl, parentEmailDocUrl,
- *   registrationFormUrl, icebreakersUrl, officeHoursUrl,
- *   leadTeachers[], seniorMentors[], supervisors[], helpers[], floaters[],
- *   beginningStaff[], intermediateStaff[], advancedStaff[],
- *   status
- *
- * classAssignments/{assignmentId}
- *   classId, memberId, classRole, status, notes, sessionId,
- *   createdAt, updatedAt
- *
- * announcements, tasks, trainingEvents, resources — supporting org ops
+ * roles/{roleId} · teams/{teamId} · sessions/{sessionId}
+ * classes/{classId} · classAssignments/{assignmentId}
  *
  * Security notes:
  * - Auth via Firebase Auth (Google + email/password)
- * - Never store Zoom account passwords in the app — meeting links only
- * - Role permissions resolved from roles collection
+ * - Never store Zoom account passwords — meeting links only
+ * - Start with test-mode rules while seeding; tighten via firestore.rules
  */
 
 export const COLLECTIONS = {
+  members: "members",
   users: "users",
   roles: "roles",
   teams: "teams",
@@ -55,4 +37,7 @@ export const COLLECTIONS = {
   tasks: "tasks",
   trainingEvents: "trainingEvents",
   resources: "resources",
+  meta: "meta",
 } as const;
+
+export type CollectionName = (typeof COLLECTIONS)[keyof typeof COLLECTIONS];

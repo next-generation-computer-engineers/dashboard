@@ -73,6 +73,14 @@ export default function ClassDayPage() {
           icon={<Video className="h-4 w-4" />}
           primary
         />
+        {cls.whatsappUrl && (
+          <ActionLink
+            href={cls.whatsappUrl}
+            title="WhatsApp"
+            subtitle="Class group chat"
+            icon={<MessageCircle className="h-4 w-4" />}
+          />
+        )}
         <ActionLink
           href={cls.attendanceSheetUrl}
           title="Attendance sheet"
@@ -132,9 +140,6 @@ export default function ClassDayPage() {
         <div className="space-y-1">
           {cls.classFolderUrl && (
             <SecondaryLink href={cls.classFolderUrl} label="Class folder" icon={<FolderOpen className="h-3.5 w-3.5" />} />
-          )}
-          {cls.whatsappUrl && (
-            <SecondaryLink href={cls.whatsappUrl} label="WhatsApp" icon={<MessageCircle className="h-3.5 w-3.5" />} />
           )}
           {cls.parentPresentationUrl && (
             <SecondaryLink href={cls.parentPresentationUrl} label="Parent presentation" icon={<Presentation className="h-3.5 w-3.5" />} />

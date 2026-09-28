@@ -21,12 +21,7 @@ import {
   type User,
 } from "firebase/auth";
 import { getFirebaseAuth, isFirebaseConfigured } from "@/lib/firebase/client";
-import {
-  DEMO_USER_ID,
-  MEMBERS,
-  findMemberByEmail,
-  getMember,
-} from "@/data/roster";
+import { useMembers, DEMO_USER_ID } from "@/lib/members/MembersProvider";
 import type { Member } from "@/types";
 
 const DEMO_STORAGE_KEY = "ceng_demo_session";
@@ -43,50 +38,31 @@ interface AuthContextValue {
   signInDemo: (memberId?: string) => void;
   resetPassword: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateOwnProfile: (
+    patch: Partial<
+      Pick<
+        Member,
+        "bio" | "phone" | "preferredName" | "linkedIn" | "portfolio" | "pfpUrl"
+      >
+    >
+  ) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/**
- * Resolve roster profile from Firebase Auth.
- * Home OR school email both map to the same volunteer row.
- */
-function resolveMember(user: User | null, demoId: string | null): Member | null {
-  if (demoId) return getMember(demoId) ?? MEMBERS[0];
-  if (!user) return null;
-
-  const matched = findMemberByEmail(user.email);
-  if (matched) {
-    return {
-      ...matched,
-      authUid: user.uid,
-      pfpUrl: matched.pfpUrl || user.photoURL || undefined,
-    };
-  }
-
-  // Unknown email — pending volunteer until an admin links them
-  return {
-    id: user.uid,
-    authUid: user.uid,
-    fullName: user.displayName ?? user.email?.split("@")[0] ?? "New Member",
-    personalEmail: user.email ?? "",
-    roleIds: ["role_volunteer"],
-    teamIds: [],
-    status: "pending",
-    onboardingStatus: "not_started",
-    searchKeywords: [],
-    pfpUrl: user.photoURL ?? undefined,
-    joinedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    title: "Volunteer",
-  };
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const {
+    loading: membersLoading,
+    getById,
+    findByEmail,
+    linkAuthUser,
+    saveProfile,
+    members,
+  } = useMembers();
   const [user, setUser] = useState<User | null>(null);
   const [demoId, setDemoId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [resolvedMember, setResolvedMember] = useState<Member | null>(null);
   const firebaseReady = isFirebaseConfigured();
 
   useEffect(() => {
@@ -95,13 +71,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (stored) setDemoId(stored);
 
     if (!firebaseReady) {
-      setLoading(false);
+      setAuthLoading(false);
       return;
     }
 
     const auth = getFirebaseAuth();
     if (!auth) {
-      setLoading(false);
+      setAuthLoading(false);
       return;
     }
 
@@ -111,10 +87,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem(DEMO_STORAGE_KEY);
         setDemoId(null);
       }
-      setLoading(false);
+      setAuthLoading(false);
     });
     return () => unsub();
   }, [firebaseReady]);
+
+  // Resolve / link member whenever auth or roster changes
+  useEffect(() => {
+    let cancelled = false;
+
+    async function resolve() {
+      if (demoId) {
+        setResolvedMember(getById(demoId) ?? members[0] ?? null);
+        return;
+      }
+      if (!user) {
+        setResolvedMember(null);
+        return;
+      }
+      if (membersLoading) return;
+
+      const linked = await linkAuthUser({
+        uid: user.uid,
+        email: user.email ?? "",
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      });
+
+      if (cancelled) return;
+
+      if (linked) {
+        setResolvedMember(linked);
+        return;
+      }
+
+      setResolvedMember({
+        id: user.uid,
+        authUid: user.uid,
+        fullName: user.displayName ?? user.email?.split("@")[0] ?? "New Member",
+        personalEmail: user.email ?? "",
+        roleIds: ["role_volunteer"],
+        teamIds: [],
+        status: "pending",
+        onboardingStatus: "not_started",
+        searchKeywords: [],
+        pfpUrl: user.photoURL ?? undefined,
+        joinedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        title: "Volunteer",
+      });
+    }
+
+    void resolve();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, demoId, membersLoading, getById, linkAuthUser, members]);
 
   const signInEmail = useCallback(async (email: string, password: string) => {
     const auth = getFirebaseAuth();
@@ -126,10 +155,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string, fullName: string) => {
       const auth = getFirebaseAuth();
       if (!auth) throw new Error("Firebase is not configured. Use demo sign-in.");
-      const roster = findMemberByEmail(email);
+      const roster = findByEmail(email);
       if (!roster) {
         throw new Error(
-          "This email isn’t on the CENG volunteer list. Use your home or school email from the contact list."
+          "This email isn’t on the CENG volunteer list. Use your home, school, or @cengclass.org email."
         );
       }
       const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
@@ -137,8 +166,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (name) {
         await updateProfile(cred.user, { displayName: name });
       }
+      await linkAuthUser({
+        uid: cred.user.uid,
+        email: cred.user.email ?? email,
+        displayName: name,
+        photoURL: cred.user.photoURL,
+      });
     },
-    []
+    [findByEmail, linkAuthUser]
   );
 
   const signInGoogle = useCallback(async () => {
@@ -147,14 +182,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
     const result = await signInWithPopup(auth, provider);
-    const roster = findMemberByEmail(result.user.email);
+    const roster = findByEmail(result.user.email);
     if (!roster) {
       await firebaseSignOut(auth);
       throw new Error(
-        "That Google account isn’t on the CENG volunteer list. Sign in with your home or school email from the contact list."
+        "That Google account isn’t on the CENG volunteer list. Sign in with your home, school, or @cengclass.org email."
       );
     }
-  }, []);
+    await linkAuthUser({
+      uid: result.user.uid,
+      email: result.user.email ?? "",
+      displayName: result.user.displayName,
+      photoURL: result.user.photoURL,
+    });
+  }, [findByEmail, linkAuthUser]);
 
   const signInDemo = useCallback((memberId: string = DEMO_USER_ID) => {
     localStorage.setItem(DEMO_STORAGE_KEY, memberId);
@@ -171,17 +212,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     localStorage.removeItem(DEMO_STORAGE_KEY);
     setDemoId(null);
+    setResolvedMember(null);
     const auth = getFirebaseAuth();
     if (auth && user) await firebaseSignOut(auth);
     setUser(null);
   }, [user]);
 
-  const member = useMemo(() => resolveMember(user, demoId), [user, demoId]);
+  const updateOwnProfile = useCallback(
+    async (
+      patch: Partial<
+        Pick<
+          Member,
+          "bio" | "phone" | "preferredName" | "linkedIn" | "portfolio" | "pfpUrl"
+        >
+      >
+    ) => {
+      if (!resolvedMember) throw new Error("Not signed in");
+      const updated = await saveProfile(resolvedMember.id, patch);
+      setResolvedMember(updated);
+    },
+    [resolvedMember, saveProfile]
+  );
+
+  // Keep resolved member in sync when roster updates (e.g. after photo save)
+  useEffect(() => {
+    if (!resolvedMember) return;
+    const fresh = getById(resolvedMember.id);
+    if (fresh && fresh.updatedAt !== resolvedMember.updatedAt) {
+      setResolvedMember(fresh);
+    }
+  }, [members, getById, resolvedMember]);
+
+  const loading = authLoading || (Boolean(user) && membersLoading);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
-      member,
+      member: resolvedMember,
       loading,
       isDemo: Boolean(demoId),
       firebaseReady,
@@ -191,10 +258,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInDemo,
       resetPassword,
       signOut,
+      updateOwnProfile,
     }),
     [
       user,
-      member,
+      resolvedMember,
       loading,
       demoId,
       firebaseReady,
@@ -204,6 +272,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInDemo,
       resetPassword,
       signOut,
+      updateOwnProfile,
     ]
   );
 

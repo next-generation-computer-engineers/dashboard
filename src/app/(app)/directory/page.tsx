@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { MEMBERS, TEAMS, CLASSES, assignmentsForMember } from "@/data/seed";
+import { TEAMS, CLASSES, assignmentsForMember } from "@/data/seed";
+import { useMembers } from "@/lib/members/MembersProvider";
 import { ALL_ROLES, displayName, getRolesByIds } from "@/lib/permissions";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from "@/components/ui/Avatar";
@@ -12,6 +13,7 @@ import { formatPhone, memberMatchesQuery } from "@/lib/utils";
 import type { MemberStatus } from "@/types";
 
 export default function DirectoryPage() {
+  const { members, source } = useMembers();
   const [query, setQuery] = useState("");
   const [roleId, setRoleId] = useState("all");
   const [teamId, setTeamId] = useState("all");
@@ -19,7 +21,7 @@ export default function DirectoryPage() {
   const [status, setStatus] = useState<MemberStatus | "all">("active");
 
   const filtered = useMemo(() => {
-    return MEMBERS.filter((m) => {
+    return members.filter((m) => {
       if (status !== "all" && m.status !== status) return false;
       if (roleId !== "all" && !m.roleIds.includes(roleId)) return false;
       if (teamId !== "all" && !m.teamIds.includes(teamId)) return false;
@@ -44,13 +46,17 @@ export default function DirectoryPage() {
         ...classNames,
       ]);
     }).sort((a, b) => a.fullName.localeCompare(b.fullName));
-  }, [query, roleId, teamId, classId, status]);
+  }, [members, query, roleId, teamId, classId, status]);
 
   return (
     <div>
       <PageHeader
         title="Directory"
-        description="Search by name, email, phone, school, role, team, or class."
+        description={
+          source === "firestore"
+            ? "Live roster from Firebase · search by name, email, phone, school, role, team, or class."
+            : "Search by name, email, phone, school, role, team, or class."
+        }
       />
 
       <div className="mb-4 space-y-3">

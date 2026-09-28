@@ -91,8 +91,10 @@ export interface Member {
   personalEmail: string;
   /** School email — either this or personalEmail works at sign-in */
   schoolEmail?: string;
-  /** Optional CENG org email (@ceng.org) if assigned */
+  /** Optional CENG org email (@cengclass.org) if assigned */
   cengEmail?: string;
+  /** Extra org emails that should also resolve to this profile (e.g. contact@) */
+  cengEmailAliases?: string[];
   phone?: string;
   school?: string;
   grade?: string;

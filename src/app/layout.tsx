@@ -3,6 +3,7 @@ import { DM_Sans } from "next/font/google";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { AuthGate } from "@/lib/auth/AuthGate";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
+import { MembersProvider } from "@/lib/members/MembersProvider";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -42,9 +43,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-full font-sans">
         <ThemeProvider>
-          <AuthProvider>
-            <AuthGate>{children}</AuthGate>
-          </AuthProvider>
+          <MembersProvider>
+            <AuthProvider>
+              <AuthGate>{children}</AuthGate>
+            </AuthProvider>
+          </MembersProvider>
         </ThemeProvider>
       </body>
     </html>

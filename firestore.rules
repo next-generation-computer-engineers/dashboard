@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function memberDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.memberId;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/members/$(memberDoc())).data.roleIds.hasAny(['role_admin']);
+    }
+
+    // Roster — readable by signed-in volunteers; writes via seed/admin
+    match /members/{memberId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin()
+        || (signedIn()
+            && request.auth.uid == resource.data.authUid
+            && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['bio', 'phone', 'preferredName', 'linkedIn', 'portfolio', 'pfpUrl', 'updatedAt', 'authUid', 'emails']));
+      allow update: if signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['authUid', 'updatedAt', 'pfpUrl', 'emails']);
+      allow delete: if isAdmin();
+    }
+
+    // Auth uid → member link
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update: if signedIn() && request.auth.uid == uid;
+      allow delete: if isAdmin();
+    }
+
+    match /roles/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /teams/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /sessions/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /classes/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /classAssignments/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /meta/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

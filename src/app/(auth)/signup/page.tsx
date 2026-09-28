@@ -64,7 +64,7 @@ export default function SignupPage() {
               placeholder="Home or school email from contact list"
             />
             <p className="mt-1 text-[11px] text-tertiary">
-              Use either your home or school email — both match your CENG profile.
+              Use your home, school, or @cengclass.org email — all match your CENG profile.
             </p>
           </div>
           <div>

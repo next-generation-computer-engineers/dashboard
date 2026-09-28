@@ -4,19 +4,16 @@ import volunteers from "@/data/volunteers.json";
 
 type VolunteerRow = (typeof volunteers)[number];
 
-function avatarFor(name: string) {
-  const seed = encodeURIComponent(name.replace(/\s+/g, ""));
-  return `https://api.dicebear.com/9.x/notionists/svg?seed=${seed}&backgroundColor=e8eef7`;
-}
-
-export function memberEmails(m: Pick<Member, "personalEmail" | "schoolEmail" | "cengEmail">): string[] {
-  return [m.personalEmail, m.schoolEmail, m.cengEmail]
+export function memberEmails(
+  m: Pick<Member, "personalEmail" | "schoolEmail" | "cengEmail" | "cengEmailAliases">
+): string[] {
+  return [m.personalEmail, m.schoolEmail, m.cengEmail, ...(m.cengEmailAliases ?? [])]
     .filter((e): e is string => Boolean(e))
     .map((e) => e.toLowerCase().trim());
 }
 
 export function emailsMatch(
-  member: Pick<Member, "personalEmail" | "schoolEmail" | "cengEmail">,
+  member: Pick<Member, "personalEmail" | "schoolEmail" | "cengEmail" | "cengEmailAliases">,
   email?: string | null
 ): boolean {
   if (!email) return false;
@@ -31,9 +28,10 @@ function mkMemberFromVolunteer(v: VolunteerRow, teamIds: string[]): Member {
     authUid: "",
     fullName: v.fullName,
     preferredName: v.preferredName || undefined,
-    pfpUrl: avatarFor(v.fullName),
     personalEmail: v.personalEmail,
     schoolEmail: v.schoolEmail || undefined,
+    cengEmail: v.cengEmail || undefined,
+    cengEmailAliases: (v as VolunteerRow & { cengEmailAliases?: string[] | null }).cengEmailAliases?.filter(Boolean) || undefined,
     phone: v.phone || undefined,
     school: v.school || undefined,
     grade: v.grade || undefined,
@@ -54,6 +52,7 @@ function mkMemberFromVolunteer(v: VolunteerRow, teamIds: string[]): Member {
     member.personalEmail,
     member.schoolEmail,
     member.cengEmail,
+    ...(member.cengEmailAliases ?? []),
     member.phone,
     member.school,
     member.grade,

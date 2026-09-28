@@ -14,7 +14,11 @@
     "phone": "6509964821",
     "personalEmail": "joy268@hotmail.com",
     "schoolEmail": "cengclass@gmail.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "alice@cengclass.org",
+    "cengEmailAliases": [
+      "contact@cengclass.org"
+    ]
   },
   {
     "id": "v_nathan_chien",
@@ -30,7 +34,8 @@
     "phone": "4153208171",
     "personalEmail": "nachien0101@gmail.com",
     "schoolEmail": "nathan.chien@oasistrilingualschool.com",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_arisa_rose_paryas",
@@ -46,7 +51,8 @@
     "phone": "7143051094",
     "personalEmail": "translator53@gmail.com",
     "schoolEmail": null,
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_ashwin_srivastava",
@@ -62,7 +68,8 @@
     "phone": "6265173169",
     "personalEmail": "ashwins.parents@gmail.com",
     "schoolEmail": null,
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_dylan_wang",
@@ -78,7 +85,8 @@
     "phone": "8572531284",
     "personalEmail": "dzwang516@gmail.com",
     "schoolEmail": "dzwang30@ohs.stanford.edu",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_dhruv_sunder",
@@ -94,7 +102,8 @@
     "phone": "6506650251",
     "personalEmail": "dhruv.sunder@gmail.com",
     "schoolEmail": "100034869@mvla.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_mary_latif",
@@ -110,7 +119,8 @@
     "phone": "6507055503",
     "personalEmail": "marylatif611@gmail.com",
     "schoolEmail": "100035897@mvla.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_rivaan_arvapalli",
@@ -126,7 +136,8 @@
     "phone": "5128189932",
     "personalEmail": "sairivy13@gmail.com",
     "schoolEmail": "rivaan.arvapalli14@k12.leanderisd.org",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_tarun_venkat",
@@ -142,7 +153,8 @@
     "phone": "4084258864",
     "personalEmail": "tarun.venkat924@gmail.com",
     "schoolEmail": "tarun.venkat30@bcp.org",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_alexander_chen",
@@ -158,7 +170,8 @@
     "phone": "6506427242",
     "personalEmail": "robotpiratealex@gmail.com",
     "schoolEmail": "100034459@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_anatta_jauhar",
@@ -174,7 +187,8 @@
     "phone": "6505440727",
     "personalEmail": "anattaj004@gmail.com",
     "schoolEmail": "100034796@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_arjun_kalwane",
@@ -190,7 +204,8 @@
     "phone": "7816986714",
     "personalEmail": "arjunskalwane@gmail.com",
     "schoolEmail": "1085551@lammersvilleusd.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_aryan_gandra",
@@ -206,7 +221,8 @@
     "phone": "9258958307",
     "personalEmail": "aryangandra8@gmail.com",
     "schoolEmail": "224004@students.srvusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_braxton_chian",
@@ -222,7 +238,8 @@
     "phone": "6506090593",
     "personalEmail": "braxtonchian@gmail.com",
     "schoolEmail": "100032171@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_damian_stout_lehman",
@@ -238,7 +255,8 @@
     "phone": "6508230702",
     "personalEmail": "damian.thecoder@gmail.com",
     "schoolEmail": "damian.stout-lehman@heliosschool.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_evan_tsai",
@@ -254,7 +272,8 @@
     "phone": "6696009130",
     "personalEmail": "evntsai2010@gmail.com",
     "schoolEmail": "100034818@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_harshit_hershey_tiwari",
@@ -270,7 +289,8 @@
     "phone": "6504692350",
     "personalEmail": "hersheychocobar1@gmail.com",
     "schoolEmail": "100034846@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": "harshit@cengclass.org"
   },
   {
     "id": "v_jinsol_kim",
@@ -287,7 +307,8 @@
     "phone": "6506759512",
     "personalEmail": "mcjinsolk11@gmail.com",
     "schoolEmail": "100034855@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "jinsol@cengclass.org"
   },
   {
     "id": "v_justin_ding",
@@ -303,7 +324,8 @@
     "phone": "6502299698",
     "personalEmail": "craftsparrot@gmail.com",
     "schoolEmail": "100034808@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "justin@cengclass.org"
   },
   {
     "id": "v_karthik_yarakaraju",
@@ -319,7 +341,8 @@
     "phone": "6506563644",
     "personalEmail": "karthikyarakaraju@gmail.com",
     "schoolEmail": "100035545@mvla.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": "karthik.yk@cengclass.org"
   },
   {
     "id": "v_langston_wei",
@@ -335,7 +358,8 @@
     "phone": "4158023188",
     "personalEmail": "langston128@icloud.com",
     "schoolEmail": "s_langston.wei@ousd.org",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_lydia_chang",
@@ -351,7 +375,8 @@
     "phone": "6504695696",
     "personalEmail": "lydiatychang@gmail.com",
     "schoolEmail": "100034790@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_marcus_tang",
@@ -367,7 +392,8 @@
     "phone": "4084971984",
     "personalEmail": "marcustang581@gmail.com",
     "schoolEmail": "100035533@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": "marcus@cengclass.org"
   },
   {
     "id": "v_om_anand_khaunte",
@@ -385,7 +411,8 @@
     "phone": "4085075485",
     "personalEmail": "okhaunte@gmail.com",
     "schoolEmail": "100034792@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": "om@cengclass.org"
   },
   {
     "id": "v_riya_gaur",
@@ -401,7 +428,8 @@
     "phone": "6502839259",
     "personalEmail": "riyagaur0411@gmail.com",
     "schoolEmail": "100034765@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_rohan_sharma",
@@ -417,7 +445,8 @@
     "phone": "6504052971",
     "personalEmail": "reach.rohans@gmail.com",
     "schoolEmail": null,
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_saksham_srivastava",
@@ -433,7 +462,8 @@
     "phone": "4087699379",
     "personalEmail": "saksham.shubh2010@gmail.com",
     "schoolEmail": "sakshamsrivastava@sfhs.com",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_samridh_srinivasan",
@@ -449,7 +479,8 @@
     "phone": "6506611020",
     "personalEmail": "samridhsrini@gmail.com",
     "schoolEmail": "100035714@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_saranya_duggirala",
@@ -465,7 +496,8 @@
     "phone": "16695774216",
     "personalEmail": "saranya.duggirala10@gmail.com",
     "schoolEmail": "saranyaduggirala@sfhs.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "saranya@cengclass.org"
   },
   {
     "id": "v_shrihaan_zaroo",
@@ -481,7 +513,8 @@
     "phone": "6504059415",
     "personalEmail": "shrihaanzaroo@gmail.com",
     "schoolEmail": "100034807@mvla.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_shriya_banerjee",
@@ -497,7 +530,8 @@
     "phone": "9166662801",
     "personalEmail": "shriya.ba12@gmail.com",
     "schoolEmail": "578323@student.sanjuan.edu",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_smitam_wankhede",
@@ -513,7 +547,8 @@
     "phone": "6508239631",
     "personalEmail": "smitamaw@gmail.com",
     "schoolEmail": "100036059@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_soum_tamhane",
@@ -529,7 +564,8 @@
     "phone": "7377016843",
     "personalEmail": "soum.tamhane32@gmail.com",
     "schoolEmail": "s301342@student.roundrockisd.org",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_tommy_lee",
@@ -545,7 +581,8 @@
     "phone": "6508238540",
     "personalEmail": "tommynolanlee@gmail.com",
     "schoolEmail": "100034484@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_veeksha_koneti",
@@ -561,7 +598,8 @@
     "phone": "4086345644",
     "personalEmail": "veekshakoneti@gmail.com",
     "schoolEmail": "veekshakoneti29@mittymonarch.com",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_vihaan_punjabi",
@@ -577,7 +615,8 @@
     "phone": "4089307477",
     "personalEmail": "vihaan.punjabi11@gmail.com",
     "schoolEmail": "s179022@scusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_wesley_hsu",
@@ -593,7 +632,8 @@
     "phone": "6502122565",
     "personalEmail": "wesleyhsu10@gmail.com",
     "schoolEmail": "380073@cusdk8.org",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_yevhenii_logvin",
@@ -609,7 +649,8 @@
     "phone": "15106964951",
     "personalEmail": "logvin11evgen@gmail.com",
     "schoolEmail": "1085553@lammersvilleusd.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_yvonne_tung",
@@ -625,7 +666,8 @@
     "phone": "6504059039",
     "personalEmail": "yvonne.tung29@gmail.com",
     "schoolEmail": "100034523@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_zachary_wang",
@@ -641,7 +683,8 @@
     "phone": "6503131331",
     "personalEmail": "zw@alexwang.com",
     "schoolEmail": "100034622@mvla.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_viba_mohan",
@@ -657,7 +700,8 @@
     "phone": "6508805873",
     "personalEmail": "happymorning552@gmail.com",
     "schoolEmail": "100033924@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "viba@cengclass.org"
   },
   {
     "id": "v_carsten_pribadi",
@@ -673,7 +717,8 @@
     "phone": "7372972702",
     "personalEmail": "carstenpribadi@gmail.com",
     "schoolEmail": "carsten.pribadi@meridianstudents.org",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": "carsten@cengclass.org"
   },
   {
     "id": "v_charlene_wang",
@@ -689,7 +734,8 @@
     "phone": "6505189723",
     "personalEmail": "charleneangelinawang@gmail.com",
     "schoolEmail": "100034078@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_chloe_do",
@@ -705,7 +751,8 @@
     "phone": "2799445040",
     "personalEmail": "cdoshopkins@gmail.com",
     "schoolEmail": "cd2150@nusdk12.org",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": "chloe@cengclass.org"
   },
   {
     "id": "v_declan_bates",
@@ -721,7 +768,8 @@
     "phone": "6502299395",
     "personalEmail": "dbates.vr@gmail.com",
     "schoolEmail": "100033464@mvla.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_ethan_tan",
@@ -737,7 +785,8 @@
     "phone": "6692908457",
     "personalEmail": "ethan.tan5551@gmail.com",
     "schoolEmail": "etan857@student.fuhsd.org",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": "ethan.t@cengclass.org"
   },
   {
     "id": "v_evan_chen",
@@ -753,7 +802,8 @@
     "phone": "6504055439",
     "personalEmail": "chenevan24816@gmail.com",
     "schoolEmail": "100033356@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_nathan_shi",
@@ -769,7 +819,8 @@
     "phone": "6262385805",
     "personalEmail": "747nathan@gmail.com",
     "schoolEmail": "nshi0032@tcusd.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_donghee_peter_kim",
@@ -785,7 +836,8 @@
     "phone": "5124841849",
     "personalEmail": "peter.donghee.kim@gmail.com",
     "schoolEmail": "s175493@student.roudrockisd.org",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_lior_balan",
@@ -801,7 +853,8 @@
     "phone": "6508805517",
     "personalEmail": "liorbalan08@gmail.com",
     "schoolEmail": "100033591@mvla.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_maximilian_tjiong",
@@ -817,7 +870,8 @@
     "phone": "5128106588",
     "personalEmail": "mtmp8888@gmail.com",
     "schoolEmail": "maximilian.tjiong@meridianstudents.org",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_andrew_poh",
@@ -834,7 +888,8 @@
     "phone": "6504692323",
     "personalEmail": "shangart17@gmail.com",
     "schoolEmail": "100034030@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "andrew@cengclass.org"
   },
   {
     "id": "v_ishan_venkataraman",
@@ -851,7 +906,8 @@
     "phone": "6502245329",
     "personalEmail": "coolguy24iv@gmail.com",
     "schoolEmail": "100033365@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_jashwanth_viswanath_karanam",
@@ -867,7 +923,8 @@
     "phone": "9254459783",
     "personalEmail": "vk.vkjashwanth@gmail.com",
     "schoolEmail": "jv8710@pleasantonusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_jay_roy",
@@ -884,7 +941,8 @@
     "phone": "6506090291",
     "personalEmail": "jayrroy1@gmail.com",
     "schoolEmail": "100034044@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "jay@cengclass.org"
   },
   {
     "id": "v_logan_quan",
@@ -901,7 +959,8 @@
     "phone": "9169829188",
     "personalEmail": "loganitcool2@gmail.com",
     "schoolEmail": null,
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "logan@cengclass.org"
   },
   {
     "id": "v_ricky_zhao",
@@ -918,7 +977,8 @@
     "phone": "6507705022",
     "personalEmail": "zzhaoricky@gmail.com",
     "schoolEmail": "100034171@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "ricky@cengclass.org"
   },
   {
     "id": "v_rishika_tammana",
@@ -935,7 +995,8 @@
     "phone": "6502294394",
     "personalEmail": "rishikat@hotmail.com",
     "schoolEmail": "100034023@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "rishika@cengclass.org"
   },
   {
     "id": "v_samhita_holla",
@@ -952,7 +1013,8 @@
     "phone": "6692684302",
     "personalEmail": "samhi.holla@gmail.com",
     "schoolEmail": "samhholl@campbellusd.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "samhita@cengclass.org"
   },
   {
     "id": "v_shruti_dusankar",
@@ -969,7 +1031,8 @@
     "phone": "4084700811",
     "personalEmail": "shrutgna@gmail.com",
     "schoolEmail": "shrutidusankar@sfhs.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "shruti@cengclass.org"
   },
   {
     "id": "v_zoey_shan",
@@ -985,7 +1048,8 @@
     "phone": "4084821512",
     "personalEmail": "zoey.zy.shan@gmail.com",
     "schoolEmail": "100034029@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_sera_john",
@@ -1001,7 +1065,8 @@
     "phone": "6693350077",
     "personalEmail": "cooolsera@gmail.com",
     "schoolEmail": "sera.john@warriorlife.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_adithi_badrinarayanan",
@@ -1017,7 +1082,8 @@
     "phone": "4088988972",
     "personalEmail": "adithibadri11@gmail.com",
     "schoolEmail": "adithib@sfhs.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_rohan_joseph",
@@ -1033,7 +1099,8 @@
     "phone": "7374202168",
     "personalEmail": "rohanjoseph110@gmail.com",
     "schoolEmail": "rohan.joseph77@k12.leanderisd.org",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_ryan_nakamura",
@@ -1049,7 +1116,8 @@
     "phone": "5103816654",
     "personalEmail": "nakamura.ryank@gmail.com",
     "schoolEmail": "55543@cv.k12.ca.us",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_srikar_krovvidi",
@@ -1065,7 +1133,8 @@
     "phone": "7374446223",
     "personalEmail": "srikark621@gmail.com",
     "schoolEmail": "srikar.krovvidi31@k12.leanderisd.org",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_ewan_thomson",
@@ -1081,7 +1150,8 @@
     "phone": "4085905881",
     "personalEmail": "ewanthomson66@gmail.com",
     "schoolEmail": "100033639@mvla.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_sanya_singh",
@@ -1097,7 +1167,8 @@
     "phone": "9494392088",
     "personalEmail": "28singhsanya@gmail.com",
     "schoolEmail": "sanya.singh@student.rjuhsd.us",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_sardha_viswanath",
@@ -1113,7 +1184,8 @@
     "phone": "5107780602",
     "personalEmail": "sardhavis4@gmail.com",
     "schoolEmail": null,
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_aaron_hwang",
@@ -1129,7 +1201,8 @@
     "phone": "6508807284",
     "personalEmail": "topaaronhwang@gmail.com",
     "schoolEmail": "100031683@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_alan_chen",
@@ -1145,7 +1218,8 @@
     "phone": "4045433337",
     "personalEmail": "alanlichen1@gmail.com",
     "schoolEmail": "100032651@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "alan@cengclass.org"
   },
   {
     "id": "v_ananda_jauhar",
@@ -1161,7 +1235,8 @@
     "phone": "6504027237",
     "personalEmail": "anandajauhar6@gmail.com",
     "schoolEmail": "100032395@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_andy_mujica",
@@ -1177,7 +1252,8 @@
     "phone": "6508234216",
     "personalEmail": "andy.mujica@icloud.com",
     "schoolEmail": "100032434@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "andy@cengclass.org"
   },
   {
     "id": "v_anjali_vashisht",
@@ -1194,7 +1270,8 @@
     "phone": "4083332181",
     "personalEmail": "anjali.vashisht2020@gmail.com",
     "schoolEmail": "vashishtanjali6411@students.esuhsd.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "anjali@cengclass.org"
   },
   {
     "id": "v_annie_liu",
@@ -1211,7 +1288,8 @@
     "phone": "6506099617",
     "personalEmail": "annieliu261@gmail.com",
     "schoolEmail": "100032106@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "annie@cengclass.org"
   },
   {
     "id": "v_avasha_jaiswal",
@@ -1227,7 +1305,8 @@
     "phone": "5104634808",
     "personalEmail": "avashajaiswal@gmail.com",
     "schoolEmail": null,
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_benjamin_sim",
@@ -1243,7 +1322,8 @@
     "phone": "6503056266",
     "personalEmail": "beans1339@gmail.com",
     "schoolEmail": "100032472@mvla.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_brian_chen",
@@ -1259,7 +1339,8 @@
     "phone": "8189131877",
     "personalEmail": "brianc6308@gmail.com",
     "schoolEmail": "bchen5707@tcusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_carter_luu",
@@ -1275,7 +1356,8 @@
     "phone": "5622158814",
     "personalEmail": "cluu024@gmail.com",
     "schoolEmail": "1069090@student.auhsd.us",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_cinty_lin",
@@ -1292,7 +1374,8 @@
     "phone": "6507728593",
     "personalEmail": "cinty.lin.cinty@gmail.com",
     "schoolEmail": "100031930@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "cinty@cengclass.org"
   },
   {
     "id": "v_dhruvi_malu",
@@ -1308,7 +1391,8 @@
     "phone": "6504959358",
     "personalEmail": "dhruvimmalu@gmail.com",
     "schoolEmail": "100032545@mvla.met",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_eli_tung",
@@ -1324,7 +1408,8 @@
     "phone": "6505188918",
     "personalEmail": "eli.tung1105@gmail.com",
     "schoolEmail": "100032484@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "eli@cengclass.org"
   },
   {
     "id": "v_elijah_rizardo",
@@ -1340,7 +1425,8 @@
     "phone": "7147375951",
     "personalEmail": "elijahrizardo@gmail.com",
     "schoolEmail": "1070755@student.auhsd.us",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": "elijah@cengclass.org"
   },
   {
     "id": "v_eric_feng",
@@ -1356,7 +1442,8 @@
     "phone": "8582050279",
     "personalEmail": "erictfeng@gmail.com",
     "schoolEmail": "eric.feng.27@bishops.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_ethan_huang",
@@ -1373,7 +1460,8 @@
     "phone": "6504220750",
     "personalEmail": "ethan.yl.huang@gmail.com",
     "schoolEmail": "100032390@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "ethan@cengclass.org"
   },
   {
     "id": "v_ethan_ku",
@@ -1389,7 +1477,8 @@
     "phone": "6507880153",
     "personalEmail": "ezkorca@gmail.com",
     "schoolEmail": "100032592@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_evan_olmstead",
@@ -1406,7 +1495,8 @@
     "phone": "6505379430",
     "personalEmail": "evanolmstead@icloud.com",
     "schoolEmail": "100031967@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "evan@cengclass.org"
   },
   {
     "id": "v_hritish_vaishnav",
@@ -1423,7 +1513,8 @@
     "phone": "9257949227",
     "personalEmail": "hritishv@gmail.com",
     "schoolEmail": "hritish.vaishnav@rafos.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "hritish@cengclass.org"
   },
   {
     "id": "v_jade_palatnik",
@@ -1439,7 +1530,8 @@
     "phone": "6509333117",
     "personalEmail": "jadetpalatnik@gmail.com",
     "schoolEmail": "100034198@mvla.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_lia_manor",
@@ -1455,7 +1547,8 @@
     "phone": "4084295439",
     "personalEmail": "lia.manor17@gmail.com",
     "schoolEmail": null,
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": "lia@cengclass.org"
   },
   {
     "id": "v_margaret_maggie_lugardo",
@@ -1471,7 +1564,8 @@
     "phone": "6504997960",
     "personalEmail": "lugardomargaret09@gmail.com",
     "schoolEmail": "100031702@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "maggie@cengclass.org"
   },
   {
     "id": "v_megan_van",
@@ -1487,7 +1581,8 @@
     "phone": "7379317698",
     "personalEmail": "megvan21309@gmail.com",
     "schoolEmail": "megan.van66@k12.leanderisd.org",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_mel_kirti",
@@ -1504,7 +1599,8 @@
     "phone": "6504002800",
     "personalEmail": "4melkirti@gmail.com",
     "schoolEmail": "100032222@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "mel@cengclass.org"
   },
   {
     "id": "v_omri_manor",
@@ -1520,7 +1616,8 @@
     "phone": "6692629964",
     "personalEmail": "omri.manor19@gmail.com",
     "schoolEmail": "mano9580@lgsstudent.org",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": "omri@cengclass.org"
   },
   {
     "id": "v_paayal_amin",
@@ -1536,7 +1633,8 @@
     "phone": "6506057475",
     "personalEmail": "paayal909@gmail.com",
     "schoolEmail": "100031609@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "paayal@cengclass.org"
   },
   {
     "id": "v_patrick_zhang",
@@ -1552,7 +1650,8 @@
     "phone": "6502875603",
     "personalEmail": "patkuanz@gmail.com",
     "schoolEmail": "100032510@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_pranav_pulavarthi",
@@ -1569,7 +1668,8 @@
     "phone": "9258193091",
     "personalEmail": "hartrocks1234@gmail.com",
     "schoolEmail": "pp7150@pleasantonusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_quinn_daniel",
@@ -1585,7 +1685,8 @@
     "phone": "6504694160",
     "personalEmail": "quinnjdaniel@gmail.com",
     "schoolEmail": "100032355@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": "quinn@cengclass.org"
   },
   {
     "id": "v_sabir_seth",
@@ -1601,7 +1702,8 @@
     "phone": "4088391324",
     "personalEmail": "sabirseth2007@gmail.com",
     "schoolEmail": "222844@students.srvusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_samuel_zhang",
@@ -1617,7 +1719,8 @@
     "phone": "6503985406",
     "personalEmail": "samhongmu@gmail.com",
     "schoolEmail": "100032509@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_veera_jain",
@@ -1633,7 +1736,8 @@
     "phone": "4086445522",
     "personalEmail": "jveera617@gmail.com",
     "schoolEmail": "vj3135@pleasantonusd.net",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_vihaan_pakala",
@@ -1650,7 +1754,8 @@
     "phone": "5109457029",
     "personalEmail": "vihaan1.pakala@gmail.com",
     "schoolEmail": "vihpak160@fusdk12.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "vihaan@cengclass.org"
   },
   {
     "id": "v_vivaan_sehgal",
@@ -1666,7 +1771,8 @@
     "phone": "6502092552",
     "personalEmail": "vivaansehgal01@gmail.com",
     "schoolEmail": null,
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "vivaan@cengclass.org"
   },
   {
     "id": "v_zoe_allanic",
@@ -1683,7 +1789,8 @@
     "phone": "6504175070",
     "personalEmail": "zoe.allanic1@gmail.com",
     "schoolEmail": "100032318@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": "zoe@cengclass.org"
   },
   {
     "id": "v_shutian_xiang",
@@ -1699,7 +1806,8 @@
     "phone": "9514472416",
     "personalEmail": "susanxiang@gmail.com",
     "schoolEmail": "shutianxiang@g.ucla.edu",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_alex_yang",
@@ -1715,7 +1823,8 @@
     "phone": "9169039461",
     "personalEmail": "alexdude1bwt3@gmail.com",
     "schoolEmail": "ay8277@nusdk12.org",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_jiya_ganesh",
@@ -1731,7 +1840,8 @@
     "phone": "6507703178",
     "personalEmail": "jiyaganesh@gmail.com",
     "schoolEmail": "100034748@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_emmett_volkert",
@@ -1747,7 +1857,8 @@
     "phone": "6503971269",
     "personalEmail": "emmettvolkert@gmail.com",
     "schoolEmail": "100034605@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_vidisha_kalyan_kumar",
@@ -1763,7 +1874,8 @@
     "phone": "6503389104",
     "personalEmail": "try44040@gmail.com",
     "schoolEmail": "100034880@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_avi_malhotra",
@@ -1779,7 +1891,8 @@
     "phone": "6502782996",
     "personalEmail": "avi.malhotra853@gmail.com",
     "schoolEmail": "amalhotra284@student.fuhsd.org",
-    "yearJoined": "2026"
+    "yearJoined": "2026",
+    "cengEmail": null
   },
   {
     "id": "v_brian_zheng",
@@ -1795,7 +1908,8 @@
     "phone": "6504923165",
     "personalEmail": "brianplaysgames1@gmail.com",
     "schoolEmail": "100033369@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_caroline_yu",
@@ -1811,7 +1925,8 @@
     "phone": "6508234209",
     "personalEmail": "carolineyu888@gmail.com",
     "schoolEmail": "100032584@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_dakshin_rengaraj",
@@ -1827,7 +1942,8 @@
     "phone": "8586100493",
     "personalEmail": "dakshin.rengaraj@gmail.com",
     "schoolEmail": "547067@stu.sandi.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_dominik_bera",
@@ -1843,7 +1959,8 @@
     "phone": "4082067697",
     "personalEmail": "dominiksbera@gmail.com",
     "schoolEmail": "23berad@lasdk8.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_garv_chadha",
@@ -1859,7 +1976,8 @@
     "phone": "6693506114",
     "personalEmail": "reactyv7@gmail.com",
     "schoolEmail": "100032895@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_hunter_rybak",
@@ -1875,7 +1993,8 @@
     "phone": "6692490593",
     "personalEmail": "hunter.rybak@icloud.com",
     "schoolEmail": "hunterrybak@sfhs.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_ivan_habib",
@@ -1891,7 +2010,8 @@
     "phone": "6692331936",
     "personalEmail": "ivanrij6@gmail.com",
     "schoolEmail": "habi9654@lgsstudent.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_julianne_yang",
@@ -1907,7 +2027,8 @@
     "phone": "5103888490",
     "personalEmail": "itsjulianneyang@gmail.com",
     "schoolEmail": "julianneyang26@crosspointacademy.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_lewis_he",
@@ -1923,7 +2044,8 @@
     "phone": "6503055902",
     "personalEmail": "lewishelh@gmail.com",
     "schoolEmail": "100034095@gmail.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_luis_gerardo_murguia_sanjaun",
@@ -1939,7 +2061,8 @@
     "phone": "6506619680",
     "personalEmail": "luisgmurguia@gmail.com",
     "schoolEmail": "100033749@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_mehul_bansal",
@@ -1955,7 +2078,8 @@
     "phone": "6822249640",
     "personalEmail": "bansalmehul101@gmail.com",
     "schoolEmail": "mehul.bansal@mybisd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_mugilan_rajaraman",
@@ -1971,7 +2095,8 @@
     "phone": "8587769769",
     "personalEmail": "mugilanr9@gmail.com",
     "schoolEmail": "mugilanr14662@stu.powayusd.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_nova_jayaraj",
@@ -1987,7 +2112,8 @@
     "phone": "4082182203",
     "personalEmail": "novajayaraj@gmail.com",
     "schoolEmail": "jayn8933@lgsstudent.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_smaran_mukkavilli",
@@ -2003,7 +2129,8 @@
     "phone": "6197719955",
     "personalEmail": "smaran.mukkavilli@gmail.com",
     "schoolEmail": "mukkavillis5794@sduhsd.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_sanjan_prabu",
@@ -2019,7 +2146,8 @@
     "phone": "8582882311",
     "personalEmail": "sanjuprabu2010@gmail.com",
     "schoolEmail": "sanjansundarp31973@stu.powayusd.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_ty_lambert",
@@ -2035,7 +2163,8 @@
     "phone": "4083489768",
     "personalEmail": "tlmbrt@icloud.com",
     "schoolEmail": "lamt8570@lgsstudent.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_zahra_mottaghian",
@@ -2051,7 +2180,8 @@
     "phone": "6056958225",
     "personalEmail": "zmottaghian89@gmail.com",
     "schoolEmail": "100033519@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_aaron_bai",
@@ -2067,7 +2197,8 @@
     "phone": "4156453118",
     "personalEmail": "aaronbai415@gmail.com",
     "schoolEmail": "100032330@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_aidan_okyar",
@@ -2083,7 +2214,8 @@
     "phone": "4089211417",
     "personalEmail": "aidan.okyar@gmail.com",
     "schoolEmail": "aidan.okyar26@bcp.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_alan_thomas",
@@ -2099,7 +2231,8 @@
     "phone": "9164269020",
     "personalEmail": "alanshenjin@gmail.com",
     "schoolEmail": "alan.thomas@student.rjuhsd.us",
-    "yearJoined": "2024"
+    "yearJoined": "2024",
+    "cengEmail": null
   },
   {
     "id": "v_alek_ding",
@@ -2115,7 +2248,8 @@
     "phone": "6504929763",
     "personalEmail": "27alekding@gmail.com",
     "schoolEmail": "100032359@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_angel_aldaco_hernandez",
@@ -2131,7 +2265,8 @@
     "phone": "4086039314",
     "personalEmail": "angelh135799@gmail.com",
     "schoolEmail": "100030634@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_brandon_kim",
@@ -2147,7 +2282,8 @@
     "phone": "9256605195",
     "personalEmail": "qazwacks@gmail.com",
     "schoolEmail": "bk3791@pleasantonusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_caleb_wu",
@@ -2163,7 +2299,8 @@
     "phone": "4086282176",
     "personalEmail": "calewu35@gmail.com",
     "schoolEmail": "calewu@lgusd.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_charu_gowdru",
@@ -2179,7 +2316,8 @@
     "phone": "4084996824",
     "personalEmail": "charugowdru@gmail.com",
     "schoolEmail": "gowdrucharu6986@students.esuhsd.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_chirag_yadav",
@@ -2195,7 +2333,8 @@
     "phone": "9802398657",
     "personalEmail": "chiragy100@gmail.com",
     "schoolEmail": "9421511581@student.ucps.k12.nc.us",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_dane_smoot",
@@ -2211,7 +2350,8 @@
     "phone": "6505151232",
     "personalEmail": "danesmoot@gmail.com",
     "schoolEmail": "danesmoot@sfhs.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_einav_garten",
@@ -2227,7 +2367,8 @@
     "phone": "6508617102",
     "personalEmail": "einav.garten@gmail.com",
     "schoolEmail": "100032374@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_helen_karupasamy",
@@ -2243,7 +2384,8 @@
     "phone": "6504396082",
     "personalEmail": "23kox6052@gmail.com",
     "schoolEmail": "100032400@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_jack_wu",
@@ -2259,7 +2401,8 @@
     "phone": "9253442761",
     "personalEmail": "jackwu1236@gmail.com",
     "schoolEmail": "wu5269@mydusd.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_jahnvi_bheemarasetti",
@@ -2275,7 +2418,8 @@
     "phone": "6698991194",
     "personalEmail": "jahnvi0.l.b@gmail.com",
     "schoolEmail": "bhej8256@lgsstudent.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_jayden_wang",
@@ -2291,7 +2435,8 @@
     "phone": "6265862552",
     "personalEmail": "jaydenlucaswang@gmail.com",
     "schoolEmail": "jwang1114@tcusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_kalea_poon",
@@ -2307,7 +2452,8 @@
     "phone": "6266823397",
     "personalEmail": "kaleapoon21@gmail.com",
     "schoolEmail": "kpoon4432@tcusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_katelyn_effendi",
@@ -2323,7 +2469,8 @@
     "phone": "4084554656",
     "personalEmail": "kwork1370@gmail.com",
     "schoolEmail": "katelyneffendi@sfhs.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_kaushik_chandolu",
@@ -2339,7 +2486,8 @@
     "phone": "9259135400",
     "personalEmail": "kaushikc2008@gmail.com",
     "schoolEmail": "chandolu2897@mydusd.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_kumarangi_jayasinghe",
@@ -2355,7 +2503,8 @@
     "phone": "4255294006",
     "personalEmail": "kumidjay@gmail.com",
     "schoolEmail": "kariyawasam.jayasinghe02@gmail.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_matthew_chen",
@@ -2371,7 +2520,8 @@
     "phone": null,
     "personalEmail": "macatttac@gmail.com",
     "schoolEmail": "100032350@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_muhriz_munir",
@@ -2387,7 +2537,8 @@
     "phone": "3216049774",
     "personalEmail": "mmuhrizmunir@gmail.com",
     "schoolEmail": "mm7063@pleasantonusd.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_naman_jain",
@@ -2403,7 +2554,8 @@
     "phone": "9253197027",
     "personalEmail": "namanjainreal@gmail.com",
     "schoolEmail": "nj3432@pleasantonusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_pairie_koh",
@@ -2419,7 +2571,8 @@
     "phone": null,
     "personalEmail": "hello.pairie@gmail.com",
     "schoolEmail": "pairie_koh@mynbps.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_pranav_rao",
@@ -2435,7 +2588,8 @@
     "phone": "6504483492",
     "personalEmail": "pranavrao1124@gmail.com",
     "schoolEmail": "100032921@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_rohan_desai",
@@ -2451,7 +2605,8 @@
     "phone": "6504727830",
     "personalEmail": "rdcube77@gmail.com",
     "schoolEmail": "100032078@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_saathvik_dharmapuram",
@@ -2467,7 +2622,8 @@
     "phone": "9253193935",
     "personalEmail": "saathvikd2686@gmail.com",
     "schoolEmail": "sd2686@pleasantonusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_sahana_srinivasan",
@@ -2483,7 +2639,8 @@
     "phone": "6507335207",
     "personalEmail": "filippova.milena@gmail.com",
     "schoolEmail": "film8802@lgsstudent.org",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_veronica_lewis",
@@ -2499,7 +2656,8 @@
     "phone": "6504921153",
     "personalEmail": "bearslewis@gmail.com",
     "schoolEmail": "100032122@mvla.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_yashvi_jain",
@@ -2515,7 +2673,8 @@
     "phone": "6699467813",
     "personalEmail": "mail.yashvi.jain@gmail.com",
     "schoolEmail": "215312@students.srvusd.net",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_yitong_emma_lu",
@@ -2531,7 +2690,8 @@
     "phone": "6502658600",
     "personalEmail": "emmmmma.lu@gmail.com",
     "schoolEmail": "100032685@gmail.com",
-    "yearJoined": null
+    "yearJoined": null,
+    "cengEmail": null
   },
   {
     "id": "v_duoyi_liang",
@@ -2547,7 +2707,8 @@
     "phone": "7155233181",
     "personalEmail": "jackliang2019@gmail.com",
     "schoolEmail": "s127085@ltisdschools.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   },
   {
     "id": "v_ziheng_henry_shi",
@@ -2563,6 +2724,7 @@
     "phone": "6505056893",
     "personalEmail": "zihengshi21@gmail.com",
     "schoolEmail": "100032698@mvla.net",
-    "yearJoined": "2025"
+    "yearJoined": "2025",
+    "cengEmail": null
   }
 ]

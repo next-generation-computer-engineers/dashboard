@@ -13,12 +13,8 @@ import {
   Check,
 } from "lucide-react";
 import { useState } from "react";
-import {
-  getMember,
-  TEAMS,
-  CLASSES,
-  assignmentsForMember,
-} from "@/data/seed";
+import { TEAMS, CLASSES, assignmentsForMember } from "@/data/seed";
+import { useMembers } from "@/lib/members/MembersProvider";
 import { displayName, getRolesByIds } from "@/lib/permissions";
 import { formatPhone } from "@/lib/utils";
 import { Avatar } from "@/components/ui/Avatar";
@@ -29,7 +25,8 @@ import { Button } from "@/components/ui/Button";
 
 export default function MemberProfilePage() {
   const params = useParams<{ id: string }>();
-  const member = getMember(params.id);
+  const { getById } = useMembers();
+  const member = getById(params.id);
   const [copied, setCopied] = useState<string | null>(null);
 
   if (!member) {
@@ -76,21 +73,21 @@ export default function MemberProfilePage() {
       >
         <GlassCard strong className="relative overflow-hidden !p-0">
           <div
-            className="absolute inset-x-0 top-0 h-28"
+            className="h-28 sm:h-32"
             style={{
               background:
                 "linear-gradient(135deg, rgba(30,86,201,0.28) 0%, rgba(240,160,30,0.18) 55%, transparent 100%)",
             }}
           />
-          <div className="relative px-5 pb-6 pt-10 sm:px-7 sm:pb-7">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-end">
+          <div className="relative px-5 pb-6 sm:px-7 sm:pb-7">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-5">
               <Avatar
                 name={name}
                 src={member.pfpUrl}
                 size="xl"
-                className="!h-24 !w-24 !rounded-[20px] shadow-lg ring-2 ring-[var(--border)]"
+                className="-mt-12 !h-24 !w-24 !rounded-[20px] shadow-lg ring-4 ring-[var(--surface)] sm:-mt-14 sm:!h-28 sm:!w-28"
               />
-              <div className="min-w-0 flex-1 pb-0.5">
+              <div className="min-w-0 flex-1 sm:pb-1">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h1 className="text-2xl font-medium tracking-tight sm:text-3xl">
                     {name}
@@ -100,11 +97,11 @@ export default function MemberProfilePage() {
                 {member.preferredName && (
                   <p className="mt-1 text-sm text-tertiary">{member.fullName}</p>
                 )}
-                <p className="mt-2 text-sm text-secondary">
+                <p className="mt-3 text-sm leading-relaxed text-secondary">
                   {member.title}
                   {member.school ? ` · ${member.school}` : ""}
                 </p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
+                <div className="mt-3.5 flex flex-wrap gap-1.5">
                   {roles.map((r) => (
                     <RoleBadge key={r.id} role={r} />
                   ))}
@@ -200,10 +197,6 @@ export default function MemberProfilePage() {
                 <Row
                   label="Onboarding"
                   value={member.onboardingStatus.replace(/_/g, " ")}
-                />
-                <Row
-                  label="Joined"
-                  value={new Date(member.joinedAt).toLocaleDateString()}
                 />
               </GlassCard>
             </div>
