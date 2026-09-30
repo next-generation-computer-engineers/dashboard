@@ -101,6 +101,8 @@ export interface Member {
   affiliation?: string;
   linkedIn?: string;
   portfolio?: string;
+  /** Personal Google Doc / Sheet / form for logging volunteer hours */
+  volunteerHoursUrl?: string;
   /** Global org role IDs */
   roleIds: string[];
   /** Team IDs */

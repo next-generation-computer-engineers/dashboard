@@ -39,7 +39,13 @@ interface AuthContextValue {
     patch: Partial<
       Pick<
         Member,
-        "bio" | "phone" | "preferredName" | "linkedIn" | "portfolio" | "pfpUrl"
+        | "bio"
+        | "phone"
+        | "preferredName"
+        | "linkedIn"
+        | "portfolio"
+        | "pfpUrl"
+        | "volunteerHoursUrl"
       >
     >
   ) => Promise<void>;
@@ -273,7 +279,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       patch: Partial<
         Pick<
           Member,
-          "bio" | "phone" | "preferredName" | "linkedIn" | "portfolio" | "pfpUrl"
+          | "bio"
+          | "phone"
+          | "preferredName"
+          | "linkedIn"
+          | "portfolio"
+          | "pfpUrl"
+          | "volunteerHoursUrl"
         >
       >
     ) => {
@@ -326,6 +338,7 @@ function pickNewerLocal(prev: Member, fresh: Member): Partial<Member> {
       linkedIn: prev.linkedIn,
       portfolio: prev.portfolio,
       pfpUrl: prev.pfpUrl,
+      volunteerHoursUrl: prev.volunteerHoursUrl,
       updatedAt: prev.updatedAt,
     };
   }

@@ -11,7 +11,7 @@
  *   Full volunteer profile (source of truth for directory + auth matching)
  *   personalEmail, schoolEmail?, cengEmail?, cengEmailAliases?[],
  *   emails[] — lowercased union of all emails for array-contains queries
- *   authUid?, roleIds[], teamIds[], status, onboardingStatus, …
+ *   authUid?, roleIds[], teamIds[], volunteerHoursUrl?, status, onboardingStatus, …
  *
  * users/{uid}  (Firebase Auth uid)
  *   Thin link: memberId, email, displayName?, linkedAt, updatedAt

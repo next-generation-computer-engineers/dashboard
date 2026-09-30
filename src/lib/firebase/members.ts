@@ -130,7 +130,13 @@ export async function updateMemberProfile(
   patch: Partial<
     Pick<
       Member,
-      "bio" | "phone" | "preferredName" | "linkedIn" | "portfolio" | "pfpUrl"
+      | "bio"
+      | "phone"
+      | "preferredName"
+      | "linkedIn"
+      | "portfolio"
+      | "pfpUrl"
+      | "volunteerHoursUrl"
     >
   >
 ): Promise<void> {

@@ -22,7 +22,7 @@ service cloud.firestore {
         || (signedIn()
             && request.auth.uid == resource.data.authUid
             && request.resource.data.diff(resource.data).affectedKeys()
-                .hasOnly(['bio', 'phone', 'preferredName', 'linkedIn', 'portfolio', 'pfpUrl', 'updatedAt', 'authUid', 'emails']));
+                .hasOnly(['bio', 'phone', 'preferredName', 'linkedIn', 'portfolio', 'pfpUrl', 'volunteerHoursUrl', 'updatedAt', 'authUid', 'emails']));
       allow update: if signedIn()
         && request.resource.data.diff(resource.data).affectedKeys()
             .hasOnly(['authUid', 'updatedAt', 'pfpUrl', 'emails']);

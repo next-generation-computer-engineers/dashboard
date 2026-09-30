@@ -29,7 +29,13 @@ import {
 type ProfilePatch = Partial<
   Pick<
     Member,
-    "bio" | "phone" | "preferredName" | "linkedIn" | "portfolio" | "pfpUrl"
+    | "bio"
+    | "phone"
+    | "preferredName"
+    | "linkedIn"
+    | "portfolio"
+    | "pfpUrl"
+    | "volunteerHoursUrl"
   >
 >;
 
