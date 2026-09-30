@@ -54,8 +54,8 @@ export default function DirectoryPage() {
         title="Directory"
         description={
           source === "firestore"
-            ? "Live roster from Firebase · search by name, email, phone, school, role, team, or class."
-            : "Search by name, email, phone, school, role, team, or class."
+            ? `${members.length} volunteers · profile edits sync from Firebase.`
+            : `${members.length} volunteers · search by name, email, phone, school, role, team, or class.`
         }
       />
 

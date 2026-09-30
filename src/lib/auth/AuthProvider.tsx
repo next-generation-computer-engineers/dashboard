@@ -296,7 +296,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [resolvedMember, saveProfile]
   );
 
-  const loading = authLoading || (Boolean(user) && membersLoading && !resolvedMember);
+  // Stay loading until Firebase Auth settles AND the signed-in member is linked.
+  // Otherwise AuthGate briefly treats the session as logged-out and flashes /login.
+  const loading = authLoading || (Boolean(user) && !resolvedMember);
 
   const value = useMemo<AuthContextValue>(
     () => ({

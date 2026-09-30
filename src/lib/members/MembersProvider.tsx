@@ -57,6 +57,17 @@ interface MembersContextValue {
 
 const MembersContext = createContext<MembersContextValue | null>(null);
 
+/** Overlay Firestore profile edits onto the full seed roster (partial cloud data must not wipe the directory). */
+function mergeRoster(seed: Member[], remote: Member[]): Member[] {
+  const map = new Map<string, Member>();
+  for (const m of seed) map.set(m.id, m);
+  for (const m of remote) {
+    const prev = map.get(m.id);
+    map.set(m.id, prev ? { ...prev, ...m } : m);
+  }
+  return Array.from(map.values());
+}
+
 export function MembersProvider({ children }: { children: ReactNode }) {
   const firebaseReady = isFirebaseConfigured();
   const [members, setMembers] = useState<Member[]>(SEED_MEMBERS);
@@ -80,7 +91,7 @@ export function MembersProvider({ children }: { children: ReactNode }) {
     try {
       const remote = await fetchAllMembers();
       if (remote.length > 0) {
-        setMembers(remote);
+        setMembers(mergeRoster(SEED_MEMBERS, remote));
         setSource("firestore");
       } else {
         setMembers(SEED_MEMBERS);
@@ -152,9 +163,17 @@ export function MembersProvider({ children }: { children: ReactNode }) {
           ...opts,
           member: local,
         });
-        setMembers((prev) =>
-          prev.map((m) => (m.id === linked.id ? { ...m, ...linked } : m))
-        );
+        setMembers((prev) => {
+          const base =
+            prev.length < SEED_MEMBERS.length
+              ? mergeRoster(SEED_MEMBERS, prev)
+              : prev;
+          const exists = base.some((m) => m.id === linked.id);
+          if (!exists) return [...base, linked];
+          return base.map((m) =>
+            m.id === linked.id ? { ...m, ...linked } : m
+          );
+        });
         setSource("firestore");
         return linked;
       } catch (err) {
