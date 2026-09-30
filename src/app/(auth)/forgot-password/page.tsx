@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useAuth } from "@/lib/auth/AuthProvider";
+import { authErrorMessage, useAuth } from "@/lib/auth/AuthProvider";
 import { Button } from "@/components/ui/Button";
 
 export default function ForgotPasswordPage() {
@@ -17,14 +17,10 @@ export default function ForgotPasswordPage() {
     setError("");
     setLoading(true);
     try {
-      if (!firebaseReady) {
-        setSent(true);
-        return;
-      }
       await resetPassword(email);
       setSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Request failed");
+      setError(authErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -39,6 +35,12 @@ export default function ForgotPasswordPage() {
             We&apos;ll email you a reset link
           </p>
         </div>
+
+        {!firebaseReady && (
+          <p className="mb-4 text-xs text-[var(--danger)]">
+            Firebase isn’t configured on this deploy.
+          </p>
+        )}
 
         {sent ? (
           <div>
@@ -65,7 +67,12 @@ export default function ForgotPasswordPage() {
               />
             </div>
             {error && <p className="text-xs text-[var(--danger)]">{error}</p>}
-            <Button type="submit" className="w-full" loading={loading}>
+            <Button
+              type="submit"
+              className="w-full"
+              loading={loading}
+              disabled={!firebaseReady}
+            >
               Send reset link
             </Button>
           </form>

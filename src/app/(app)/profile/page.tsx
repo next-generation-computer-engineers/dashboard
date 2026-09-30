@@ -16,7 +16,7 @@ import { RoleBadge, StatusDot } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
 export default function ProfilePage() {
-  const { member, user, isDemo, firebaseReady, updateOwnProfile } = useAuth();
+  const { member, user, firebaseReady, updateOwnProfile } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [editing, setEditing] = useState(false);
@@ -135,7 +135,7 @@ export default function ProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-4 text-sm text-[var(--success)]"
         >
-          Profile updated{isDemo || !firebaseReady ? " locally" : ""}.
+          Profile updated.
         </motion.p>
       )}
       {error && <p className="mb-4 text-sm text-[var(--danger)]">{error}</p>}

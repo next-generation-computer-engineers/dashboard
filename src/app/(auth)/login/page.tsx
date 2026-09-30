@@ -3,13 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth/AuthProvider";
+import { authErrorMessage, useAuth } from "@/lib/auth/AuthProvider";
 import { Button } from "@/components/ui/Button";
-import { MEMBERS } from "@/data/seed";
-import { displayName } from "@/lib/permissions";
 
 export default function LoginPage() {
-  const { signInEmail, signInGoogle, signInDemo, firebaseReady } = useAuth();
+  const { signInEmail, signInGoogle, firebaseReady } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +22,7 @@ export default function LoginPage() {
       await signInEmail(email, password);
       router.replace("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign-in failed");
+      setError(authErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -37,7 +35,7 @@ export default function LoginPage() {
       await signInGoogle();
       router.replace("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Google sign-in failed");
+      setError(authErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -57,8 +55,16 @@ export default function LoginPage() {
               className="h-10 w-auto rounded-sm"
             />
           </div>
-          <p className="text-sm text-secondary">Sign in</p>
+          <p className="text-sm text-secondary">Sign in to the volunteer dashboard</p>
         </div>
+
+        {!firebaseReady && (
+          <p className="mb-4 rounded-[var(--radius-sm)] border border-[var(--danger)]/30 bg-[var(--danger)]/5 px-3 py-2 text-xs text-[var(--danger)]">
+            Firebase isn’t configured on this deploy. Add{" "}
+            <code className="text-[10px]">NEXT_PUBLIC_FIREBASE_*</code> env vars
+            in Vercel and redeploy.
+          </p>
+        )}
 
         <form onSubmit={onSubmit} className="space-y-3">
           <div>
@@ -70,7 +76,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input-field"
-              placeholder="Home or school email"
+              placeholder="Home, school, or @cengclass.org"
             />
           </div>
           <div>
@@ -106,51 +112,28 @@ export default function LoginPage() {
           </Button>
         </form>
 
+        <div className="my-4 flex items-center gap-3">
+          <div className="h-px flex-1 bg-[var(--border)]" />
+          <span className="text-[11px] text-tertiary">or</span>
+          <div className="h-px flex-1 bg-[var(--border)]" />
+        </div>
+
         <Button
           type="button"
           variant="secondary"
-          className="mt-2 w-full"
+          className="w-full"
           onClick={onGoogle}
           disabled={!firebaseReady || loading}
         >
           Continue with Google
         </Button>
 
-        {!firebaseReady && (
-          <div className="mt-6 border-t border-[var(--border)] pt-5">
-            <p className="mb-2 text-xs text-tertiary">Demo mode</p>
-            <div className="space-y-0.5">
-                {MEMBERS.filter((m) => m.status === "active")
-                  .filter((m) =>
-                    [
-                      "v_om_anand_khaunte",
-                      "v_alice_lee",
-                      "v_jay_roy",
-                      "v_cinty_lin",
-                      "v_karthik_yarakaraju",
-                    ].includes(m.id)
-                  )
-                  .map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => {
-                        signInDemo(m.id);
-                        router.replace("/dashboard");
-                      }}
-                      className="flex w-full items-center justify-between rounded-[var(--radius-sm)] px-2 py-2 text-left text-sm hover:bg-[var(--surface-hover)]"
-                    >
-                      <span>{displayName(m)}</span>
-                      <span className="text-xs text-tertiary">{m.title}</span>
-                    </button>
-                  ))}
-            </div>
-          </div>
-        )}
-
         <p className="mt-6 text-sm text-secondary">
           New here?{" "}
-          <Link href="/signup" className="text-[var(--text-primary)] underline underline-offset-2">
+          <Link
+            href="/signup"
+            className="text-[var(--text-primary)] underline underline-offset-2"
+          >
             Create an account
           </Link>
         </p>

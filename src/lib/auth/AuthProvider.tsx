@@ -21,21 +21,17 @@ import {
   type User,
 } from "firebase/auth";
 import { getFirebaseAuth, isFirebaseConfigured } from "@/lib/firebase/client";
-import { useMembers, DEMO_USER_ID } from "@/lib/members/MembersProvider";
+import { useMembers } from "@/lib/members/MembersProvider";
 import type { Member } from "@/types";
-
-const DEMO_STORAGE_KEY = "ceng_demo_session";
 
 interface AuthContextValue {
   user: User | null;
   member: Member | null;
   loading: boolean;
-  isDemo: boolean;
   firebaseReady: boolean;
   signInEmail: (email: string, password: string) => Promise<void>;
   signUpEmail: (email: string, password: string, fullName: string) => Promise<void>;
   signInGoogle: () => Promise<void>;
-  signInDemo: (memberId?: string) => void;
   resetPassword: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateOwnProfile: (
@@ -50,6 +46,48 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+export function authErrorMessage(err: unknown): string {
+  const code =
+    err && typeof err === "object" && "code" in err
+      ? String((err as { code: string }).code)
+      : "";
+  switch (code) {
+    case "auth/invalid-email":
+      return "That email doesn’t look valid.";
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":
+      return "Incorrect email or password.";
+    case "auth/email-already-in-use":
+      return "An account already exists with this email. Sign in instead.";
+    case "auth/weak-password":
+      return "Password must be at least 6 characters.";
+    case "auth/popup-closed-by-user":
+    case "auth/cancelled-popup-request":
+      return "Sign-in was cancelled.";
+    case "auth/unauthorized-domain":
+      return "This domain isn’t authorized in Firebase. Add it under Authentication → Settings → Authorized domains.";
+    case "auth/operation-not-allowed":
+      return "This sign-in method isn’t enabled yet in Firebase Authentication.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Try again in a few minutes.";
+    case "auth/network-request-failed":
+      return "Network error. Check your connection and try again.";
+    default:
+      return err instanceof Error ? err.message : "Something went wrong.";
+  }
+}
+
+function requireFirebase() {
+  const auth = getFirebaseAuth();
+  if (!auth || !isFirebaseConfigured()) {
+    throw new Error(
+      "Firebase isn’t configured. Add NEXT_PUBLIC_FIREBASE_* env vars on Vercel and redeploy."
+    );
+  }
+  return auth;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const {
     loading: membersLoading,
@@ -60,15 +98,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     members,
   } = useMembers();
   const [user, setUser] = useState<User | null>(null);
-  const [demoId, setDemoId] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [resolvedMember, setResolvedMember] = useState<Member | null>(null);
   const firebaseReady = isFirebaseConfigured();
 
   useEffect(() => {
-    const stored =
-      typeof window !== "undefined" ? localStorage.getItem(DEMO_STORAGE_KEY) : null;
-    if (stored) setDemoId(stored);
+    // Clear legacy demo sessions
+    try {
+      localStorage.removeItem("ceng_demo_session");
+    } catch {
+      /* ignore */
+    }
 
     if (!firebaseReady) {
       setAuthLoading(false);
@@ -83,24 +123,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      if (u) {
-        localStorage.removeItem(DEMO_STORAGE_KEY);
-        setDemoId(null);
-      }
       setAuthLoading(false);
     });
     return () => unsub();
   }, [firebaseReady]);
 
-  // Resolve / link member whenever auth or roster changes
   useEffect(() => {
     let cancelled = false;
 
     async function resolve() {
-      if (demoId) {
-        setResolvedMember(getById(demoId) ?? members[0] ?? null);
-        return;
-      }
       if (!user) {
         setResolvedMember(null);
         return;
@@ -121,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // Signed in but not on roster — still allow entry as pending
       setResolvedMember({
         id: user.uid,
         authUid: user.uid,
@@ -143,18 +175,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [user, demoId, membersLoading, getById, linkAuthUser, members]);
+  }, [user, membersLoading, linkAuthUser, members, getById]);
 
   const signInEmail = useCallback(async (email: string, password: string) => {
-    const auth = getFirebaseAuth();
-    if (!auth) throw new Error("Firebase is not configured. Use demo sign-in.");
+    const auth = requireFirebase();
     await signInWithEmailAndPassword(auth, email.trim(), password);
   }, []);
 
   const signUpEmail = useCallback(
     async (email: string, password: string, fullName: string) => {
-      const auth = getFirebaseAuth();
-      if (!auth) throw new Error("Firebase is not configured. Use demo sign-in.");
+      const auth = requireFirebase();
       const roster = findByEmail(email);
       if (!roster) {
         throw new Error(
@@ -177,8 +207,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signInGoogle = useCallback(async () => {
-    const auth = getFirebaseAuth();
-    if (!auth) throw new Error("Firebase is not configured. Use demo sign-in.");
+    const auth = requireFirebase();
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
     const result = await signInWithPopup(auth, provider);
@@ -186,7 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!roster) {
       await firebaseSignOut(auth);
       throw new Error(
-        "That Google account isn’t on the CENG volunteer list. Sign in with your home, school, or @cengclass.org email."
+        "That Google account isn’t on the CENG volunteer list. Use your home, school, or @cengclass.org email."
       );
     }
     await linkAuthUser({
@@ -197,21 +226,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, [findByEmail, linkAuthUser]);
 
-  const signInDemo = useCallback((memberId: string = DEMO_USER_ID) => {
-    localStorage.setItem(DEMO_STORAGE_KEY, memberId);
-    setDemoId(memberId);
-    setUser(null);
-  }, []);
-
   const resetPassword = useCallback(async (email: string) => {
-    const auth = getFirebaseAuth();
-    if (!auth) throw new Error("Firebase is not configured.");
+    const auth = requireFirebase();
     await sendPasswordResetEmail(auth, email.trim());
   }, []);
 
   const signOut = useCallback(async () => {
-    localStorage.removeItem(DEMO_STORAGE_KEY);
-    setDemoId(null);
     setResolvedMember(null);
     const auth = getFirebaseAuth();
     if (auth && user) await firebaseSignOut(auth);
@@ -234,7 +254,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [resolvedMember, saveProfile]
   );
 
-  // Keep resolved member in sync when roster updates (e.g. after photo save)
   useEffect(() => {
     if (!resolvedMember) return;
     const fresh = getById(resolvedMember.id);
@@ -250,12 +269,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       member: resolvedMember,
       loading,
-      isDemo: Boolean(demoId),
       firebaseReady,
       signInEmail,
       signUpEmail,
       signInGoogle,
-      signInDemo,
       resetPassword,
       signOut,
       updateOwnProfile,
@@ -264,12 +281,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       resolvedMember,
       loading,
-      demoId,
       firebaseReady,
       signInEmail,
       signUpEmail,
       signInGoogle,
-      signInDemo,
       resetPassword,
       signOut,
       updateOwnProfile,
