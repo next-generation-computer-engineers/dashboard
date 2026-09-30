@@ -81,6 +81,32 @@ export function filterEventsForTeams(
     );
 }
 
+/** Meetings page: all upcoming + active recurring (not limited to today), sorted by next occurrence. */
+export function filterEventsForMeetingsPage(
+  events: TeamEvent[],
+  teamIds: string[],
+  nextOccurrence: (event: TeamEvent) => string
+): TeamEvent[] {
+  const setIds = new Set(teamIds);
+  const now = Date.now() - 2 * 60 * 60 * 1000;
+  return events
+    .filter((e) => setIds.has(e.teamId))
+    .filter((e) => {
+      if (e.recurringUntil) {
+        return new Date(e.recurringUntil + "T23:59:59").getTime() >= now;
+      }
+      const end = e.endsAt
+        ? new Date(e.endsAt).getTime()
+        : new Date(e.startsAt).getTime() + 2 * 60 * 60 * 1000;
+      return end >= now;
+    })
+    .sort(
+      (a, b) =>
+        new Date(nextOccurrence(a)).getTime() -
+        new Date(nextOccurrence(b)).getTime()
+    );
+}
+
 export function filterEventsForTeam(
   events: TeamEvent[],
   teamId: string

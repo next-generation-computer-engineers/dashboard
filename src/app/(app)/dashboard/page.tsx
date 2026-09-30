@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Video,
   ClipboardList,
@@ -12,19 +12,26 @@ import {
   MessageCircle,
   Clock,
   Users,
+  Check,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { useMembers } from "@/lib/members/MembersProvider";
 import { assignmentsForMember, getClass } from "@/data/seed";
 import { displayName } from "@/lib/permissions";
 import { PageHeader, SectionLabel } from "@/components/ui/PageHeader";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
 import { TeamEventCard } from "@/components/events/TeamEventCard";
 import {
   filterEventsForTeams,
   useTeamEvents,
 } from "@/lib/events/store";
 import { useTeamsStore } from "@/lib/teams/store";
+import { useJoinRequests } from "@/lib/teams/joinRequests";
 import { teamIdsForMember } from "@/lib/teams/membership";
+import { leadTeamsFor } from "@/lib/teams/permissions";
 import {
   googleCalendarUrlForClass,
   isTeamEventOnDay,
@@ -35,8 +42,14 @@ import type { ClassEntity } from "@/types";
 
 export default function DashboardPage() {
   const { member } = useAuth();
+  const { getById, adminPatchMember } = useMembers();
   const allEvents = useTeamEvents((s) => s.events);
   const teams = useTeamsStore((s) => s.teams);
+  const addMember = useTeamsStore((s) => s.addMember);
+  const allRequests = useJoinRequests((s) => s.requests);
+  const approveRequest = useJoinRequests((s) => s.approve);
+  const denyRequest = useJoinRequests((s) => s.deny);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
 
   const myTeamIds = useMemo(
     () => (member ? teamIdsForMember(teams, member.id) : []),
@@ -48,6 +61,17 @@ export default function DashboardPage() {
     [teams, myTeamIds]
   );
 
+  const leadTeamIds = useMemo(
+    () => (member ? leadTeamsFor(member, teams).map((t) => t.id) : []),
+    [member, teams]
+  );
+
+  const pendingJoinRequests = useMemo(() => {
+    return allRequests.filter(
+      (r) => r.status === "pending" && leadTeamIds.includes(r.teamId)
+    );
+  }, [allRequests, leadTeamIds]);
+
   const todaysMeetings = useMemo(() => {
     if (!member) return [];
     const today = new Date();
@@ -55,6 +79,33 @@ export default function DashboardPage() {
       isTeamEventOnDay(e, today)
     );
   }, [allEvents, myTeamIds, member]);
+
+  async function syncMemberTeams(memberId: string) {
+    const ids = teamIdsForMember(useTeamsStore.getState().teams, memberId);
+    await adminPatchMember(memberId, { teamIds: ids });
+  }
+
+  async function onApprove(requestId: string, teamId: string, memberId: string) {
+    if (!member) return;
+    setResolvingId(requestId);
+    try {
+      approveRequest(requestId, member.id);
+      addMember(teamId, memberId);
+      await syncMemberTeams(memberId);
+    } finally {
+      setResolvingId(null);
+    }
+  }
+
+  async function onDeny(requestId: string) {
+    if (!member) return;
+    setResolvingId(requestId);
+    try {
+      denyRequest(requestId, member.id);
+    } finally {
+      setResolvingId(null);
+    }
+  }
 
   if (!member) return null;
 
@@ -84,6 +135,66 @@ export default function DashboardPage() {
       />
 
       <div className="space-y-8">
+        {pendingJoinRequests.length > 0 && (
+          <section>
+            <SectionLabel>Join requests</SectionLabel>
+            <div className="flex flex-col gap-2">
+              {pendingJoinRequests.map((req) => {
+                const requester = getById(req.memberId);
+                const team = teams.find((t) => t.id === req.teamId);
+                const name = requester
+                  ? displayName(requester)
+                  : "Someone";
+                const teamName = team?.name ?? "a team";
+                return (
+                  <GlassCard key={req.id}>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <Avatar
+                          name={name}
+                          src={requester?.pfpUrl}
+                          size="sm"
+                        />
+                        <p className="text-sm text-secondary">
+                          <span className="font-medium text-[var(--text-primary)]">
+                            {name}
+                          </span>{" "}
+                          wants to join{" "}
+                          <span className="font-medium text-[var(--text-primary)]">
+                            {teamName}
+                          </span>
+                          . Approve?
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 gap-2">
+                        <Button
+                          size="sm"
+                          disabled={resolvingId === req.id}
+                          onClick={() =>
+                            void onApprove(req.id, req.teamId, req.memberId)
+                          }
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={resolvingId === req.id}
+                          onClick={() => void onDeny(req.id)}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                          Deny
+                        </Button>
+                      </div>
+                    </div>
+                  </GlassCard>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         <section>
           <SectionLabel>Your classes and meetings today</SectionLabel>
           {!hasSchedule ? (

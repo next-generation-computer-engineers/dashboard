@@ -67,8 +67,8 @@ export default function TeamsPage() {
         title="Teams"
         description={
           canAdmin
-            ? "Open a team to manage members, leads, and events."
-            : "Open a team to see members and events. Leads can create events for the group."
+            ? "Create teams, assign leads, or open a team to manage members. Anyone can request to join."
+            : "Open a team to request to join, see members, and view events. Leads create events for the group."
         }
         actions={
           canAdmin ? (

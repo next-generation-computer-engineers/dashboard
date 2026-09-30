@@ -343,7 +343,8 @@
     "personalEmail": "karthikyarakaraju@gmail.com",
     "schoolEmail": "100035545@mvla.net",
     "yearJoined": "2026",
-    "cengEmail": "karthik.yk@cengclass.org"
+    "cengEmail": "karthik.y@cengclass.org",
+    "cengEmailAliases": ["karthik.yk@cengclass.org"]
   },
   {
     "id": "v_langston_wei",

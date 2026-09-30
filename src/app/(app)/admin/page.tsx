@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -13,9 +13,9 @@ import {
   Check,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { useMembers } from "@/lib/members/MembersProvider";
 import { hasPermission, ALL_ROLES, displayName } from "@/lib/permissions";
 import {
-  MEMBERS,
   CLASSES,
   CLASS_ASSIGNMENTS,
   TEAMS,
@@ -31,13 +31,49 @@ import type { Member, MemberStatus } from "@/types";
 
 type AdminTab = "overview" | "members" | "roles" | "staffing" | "sessions";
 
+type EditableFields = {
+  fullName: string;
+  preferredName: string;
+  title: string;
+  phone: string;
+  school: string;
+  grade: string;
+  personalEmail: string;
+  schoolEmail: string;
+  cengEmail: string;
+  bio: string;
+  linkedIn: string;
+  portfolio: string;
+};
+
+function fieldsFromMember(m: Member): EditableFields {
+  return {
+    fullName: m.fullName ?? "",
+    preferredName: m.preferredName ?? "",
+    title: m.title ?? "",
+    phone: m.phone ?? "",
+    school: m.school ?? "",
+    grade: m.grade ?? "",
+    personalEmail: m.personalEmail ?? "",
+    schoolEmail: m.schoolEmail ?? "",
+    cengEmail: m.cengEmail ?? "",
+    bio: m.bio ?? "",
+    linkedIn: m.linkedIn ?? "",
+    portfolio: m.portfolio ?? "",
+  };
+}
+
 export default function AdminPage() {
   const { member } = useAuth();
+  const { members, adminPatchMember } = useMembers();
   const router = useRouter();
   const [tab, setTab] = useState<AdminTab>("overview");
-  const [members, setMembers] = useState<Member[]>(MEMBERS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [form, setForm] = useState<EditableFields | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
   const staffingGaps = useMemo(() => {
     return CLASSES.map((cls) => {
@@ -62,11 +98,27 @@ export default function AdminPage() {
     member && hasPermission(member.roleIds, "admin:access")
   );
 
+  const selected = members.find((m) => m.id === selectedId) ?? null;
+
+  useEffect(() => {
+    if (!selected) {
+      setForm(null);
+      return;
+    }
+    setForm(fieldsFromMember(selected));
+    setError("");
+    setSaved(false);
+  }, [selected]);
+
   if (!member || !canAdmin) {
     return (
       <div className="py-20 text-center">
         <p className="font-display text-xl">Admin access required</p>
-        <Button className="mt-4" variant="secondary" onClick={() => router.push("/dashboard")}>
+        <Button
+          className="mt-4"
+          variant="secondary"
+          onClick={() => router.push("/dashboard")}
+        >
           Back home
         </Button>
       </div>
@@ -75,7 +127,6 @@ export default function AdminPage() {
 
   const pending = members.filter((m) => m.status === "pending");
   const active = members.filter((m) => m.status === "active");
-  const selected = members.find((m) => m.id === selectedId);
 
   const filteredMembers = members.filter((m) => {
     if (!query.trim()) return true;
@@ -84,29 +135,70 @@ export default function AdminPage() {
       m.fullName.toLowerCase().includes(q) ||
       m.personalEmail.toLowerCase().includes(q) ||
       m.schoolEmail?.toLowerCase().includes(q) ||
+      m.cengEmail?.toLowerCase().includes(q) ||
       m.title?.toLowerCase().includes(q)
     );
   });
 
-  function setStatus(id: string, status: MemberStatus) {
-    setMembers((list) =>
-      list.map((m) => (m.id === id ? { ...m, status } : m))
-    );
+  const dirty =
+    selected && form
+      ? JSON.stringify(form) !== JSON.stringify(fieldsFromMember(selected))
+      : false;
+
+  async function setStatus(id: string, status: MemberStatus) {
+    setError("");
+    try {
+      await adminPatchMember(id, { status });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn’t update status");
+    }
   }
 
-  function toggleRole(memberId: string, roleId: string) {
-    setMembers((list) =>
-      list.map((m) => {
-        if (m.id !== memberId) return m;
-        const has = m.roleIds.includes(roleId);
-        return {
-          ...m,
-          roleIds: has
-            ? m.roleIds.filter((r) => r !== roleId)
-            : [...m.roleIds, roleId],
-        };
-      })
-    );
+  async function toggleRole(memberId: string, roleId: string) {
+    const current = members.find((m) => m.id === memberId);
+    if (!current) return;
+    const has = current.roleIds.includes(roleId);
+    const roleIds = has
+      ? current.roleIds.filter((r) => r !== roleId)
+      : [...current.roleIds, roleId];
+    setError("");
+    try {
+      await adminPatchMember(memberId, { roleIds });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn’t update roles");
+    }
+  }
+
+  async function saveInfo() {
+    if (!selected || !form) return;
+    if (!form.fullName.trim() || !form.personalEmail.trim()) {
+      setError("Full name and personal email are required.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      await adminPatchMember(selected.id, {
+        fullName: form.fullName.trim(),
+        preferredName: form.preferredName.trim() || undefined,
+        title: form.title.trim() || undefined,
+        phone: form.phone.trim() || undefined,
+        school: form.school.trim() || undefined,
+        grade: form.grade.trim() || undefined,
+        personalEmail: form.personalEmail.trim().toLowerCase(),
+        schoolEmail: form.schoolEmail.trim().toLowerCase() || undefined,
+        cengEmail: form.cengEmail.trim().toLowerCase() || undefined,
+        bio: form.bio.trim() || undefined,
+        linkedIn: form.linkedIn.trim() || undefined,
+        portfolio: form.portfolio.trim() || undefined,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn’t save profile");
+    } finally {
+      setSaving(false);
+    }
   }
 
   const tabs: { id: AdminTab; label: string; icon: typeof Users }[] = [
@@ -188,7 +280,7 @@ export default function AdminPage() {
                       <Button
                         size="sm"
                         variant="soft"
-                        onClick={() => setStatus(m.id, "active")}
+                        onClick={() => void setStatus(m.id, "active")}
                       >
                         Approve
                       </Button>
@@ -231,7 +323,7 @@ export default function AdminPage() {
 
       {tab === "members" && (
         <div className="grid gap-5 lg:grid-cols-12">
-          <div className="lg:col-span-5 space-y-3">
+          <div className="space-y-3 lg:col-span-5">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -266,7 +358,7 @@ export default function AdminPage() {
           </div>
 
           <div className="lg:col-span-7">
-            {selected ? (
+            {selected && form ? (
               <motion.div
                 key={selected.id}
                 initial={{ opacity: 0, y: 6 }}
@@ -286,8 +378,7 @@ export default function AdminPage() {
                       </h3>
                       <p className="text-sm text-secondary">{selected.title}</p>
                       <p className="mt-1 text-xs text-tertiary">
-                        {selected.personalEmail}
-                        {selected.cengEmail ? ` · ${selected.cengEmail}` : ""}
+                        Edit any field below — changes save to the live roster.
                       </p>
                     </div>
                     <Link href={`/directory/${selected.id}`}>
@@ -298,14 +389,90 @@ export default function AdminPage() {
                   </div>
 
                   <div className="mt-6">
+                    <SectionLabel>Profile info</SectionLabel>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {(
+                        [
+                          ["fullName", "Full name", true],
+                          ["preferredName", "Preferred name", false],
+                          ["title", "Title", false],
+                          ["phone", "Phone", false],
+                          ["school", "School", false],
+                          ["grade", "Grade", false],
+                          ["personalEmail", "Personal email", true],
+                          ["schoolEmail", "School email", false],
+                          ["cengEmail", "CENG email", false],
+                          ["linkedIn", "LinkedIn", false],
+                          ["portfolio", "Portfolio", false],
+                        ] as const
+                      ).map(([key, label, required]) => (
+                        <label key={key} className="block sm:col-span-1">
+                          <span className="mb-1 block text-[11px] text-tertiary">
+                            {label}
+                          </span>
+                          <input
+                            required={required}
+                            value={form[key]}
+                            onChange={(e) => {
+                              setForm((f) =>
+                                f ? { ...f, [key]: e.target.value } : f
+                              );
+                              setSaved(false);
+                            }}
+                            className="input-field"
+                          />
+                        </label>
+                      ))}
+                      <label className="block sm:col-span-2">
+                        <span className="mb-1 block text-[11px] text-tertiary">
+                          Bio
+                        </span>
+                        <textarea
+                          value={form.bio}
+                          onChange={(e) => {
+                            setForm((f) =>
+                              f ? { ...f, bio: e.target.value } : f
+                            );
+                            setSaved(false);
+                          }}
+                          className="input-field !h-auto !py-2.5 resize-none"
+                          rows={3}
+                        />
+                      </label>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <Button
+                        type="button"
+                        disabled={saving || !dirty}
+                        onClick={() => void saveInfo()}
+                      >
+                        {saving ? "Saving…" : "Save info"}
+                      </Button>
+                      {saved && (
+                        <span className="text-xs text-[var(--accent)]">
+                          Saved
+                        </span>
+                      )}
+                      {error && (
+                        <span className="text-xs text-red-500">{error}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
                     <SectionLabel>Status</SectionLabel>
                     <div className="flex flex-wrap gap-2">
                       {(
-                        ["active", "pending", "inactive", "alumni"] as MemberStatus[]
+                        [
+                          "active",
+                          "pending",
+                          "inactive",
+                          "alumni",
+                        ] as MemberStatus[]
                       ).map((s) => (
                         <button
                           key={s}
-                          onClick={() => setStatus(selected.id, s)}
+                          onClick={() => void setStatus(selected.id, s)}
                           className={cn(
                             "rounded-full border px-3 py-1 text-xs capitalize",
                             selected.status === s
@@ -327,7 +494,7 @@ export default function AdminPage() {
                         return (
                           <button
                             key={role.id}
-                            onClick={() => toggleRole(selected.id, role.id)}
+                            onClick={() => void toggleRole(selected.id, role.id)}
                             className={cn(
                               "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition-colors",
                               on
@@ -433,7 +600,8 @@ export default function AdminPage() {
                   <div>
                     <h3 className="font-display text-lg">{cls.name}</h3>
                     <p className="mt-1 text-xs text-secondary">
-                      {cls.dayOfWeek} · {cls.sessionLabel} · {team.length} assigned
+                      {cls.dayOfWeek} · {cls.sessionLabel} · {team.length}{" "}
+                      assigned
                     </p>
                   </div>
                   <Link href={`/classes/${cls.id}`}>
@@ -446,21 +614,15 @@ export default function AdminPage() {
                   {team.map(({ member: m, assignment }) => (
                     <div
                       key={m.id}
-                      className="inline-flex items-center gap-2 rounded-full glass-inset py-1 pl-1 pr-3"
+                      className="glass-inset inline-flex items-center gap-2 rounded-full py-1 pl-1 pr-3"
                     >
                       <Avatar name={displayName(m)} src={m.pfpUrl} size="sm" />
                       <span className="text-xs">
-                        {displayName(m)}
-                        <span className="text-tertiary">
-                          {" "}
-                          · {assignment.classRole.replace(/_/g, " ")}
-                        </span>
+                        {displayName(m)} ·{" "}
+                        {assignment.classRole.replace(/_/g, " ")}
                       </span>
                     </div>
                   ))}
-                  {team.length === 0 && (
-                    <p className="text-sm text-[var(--warning)]">Unstaffed</p>
-                  )}
                 </div>
               </GlassCard>
             );
@@ -469,23 +631,11 @@ export default function AdminPage() {
       )}
 
       {tab === "sessions" && (
-        <GlassCard strong>
-          <SectionLabel>Active session</SectionLabel>
-          <h3 className="font-display text-2xl">Spring 2026</h3>
-          <p className="mt-2 text-sm text-secondary">
+        <GlassCard>
+          <p className="text-sm text-secondary">
             Jan 12 – May 30, 2026 · {CLASSES.length} classes ·{" "}
             {CLASS_ASSIGNMENTS.length} assignments · {TEAMS.length} teams
           </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            {CLASSES.map((c) => (
-              <div key={c.id} className="glass-inset rounded-xl p-4">
-                <p className="text-sm font-medium">{c.name}</p>
-                <p className="mt-1 text-[11px] text-tertiary capitalize">
-                  {c.status}
-                </p>
-              </div>
-            ))}
-          </div>
         </GlassCard>
       )}
     </div>

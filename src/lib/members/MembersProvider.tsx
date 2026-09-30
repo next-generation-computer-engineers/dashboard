@@ -19,6 +19,7 @@ import {
   getMember as getSeedMember,
   emailsMatch,
 } from "@/data/roster";
+import { buildSearchKeywords } from "@/lib/utils";
 import { getFirebaseAuth, isFirebaseConfigured } from "@/lib/firebase/client";
 import {
   fetchAllMembers,
@@ -41,7 +42,29 @@ type ProfilePatch = Partial<
 >;
 
 type AdminMemberPatch = Partial<
-  Pick<Member, "teamIds" | "roleIds" | "status" | "title">
+  Pick<
+    Member,
+    | "teamIds"
+    | "roleIds"
+    | "status"
+    | "title"
+    | "fullName"
+    | "preferredName"
+    | "bio"
+    | "phone"
+    | "school"
+    | "grade"
+    | "personalEmail"
+    | "schoolEmail"
+    | "cengEmail"
+    | "cengEmailAliases"
+    | "linkedIn"
+    | "portfolio"
+    | "pfpUrl"
+    | "volunteerHoursUrl"
+    | "onboardingStatus"
+    | "affiliation"
+  >
 >;
 
 interface MembersContextValue {
@@ -233,6 +256,21 @@ export function MembersProvider({ children }: { children: ReactNode }) {
         ...patch,
         updatedAt: new Date().toISOString(),
       };
+      updated.searchKeywords = buildSearchKeywords([
+        updated.fullName,
+        updated.preferredName,
+        updated.title,
+        updated.personalEmail,
+        updated.schoolEmail,
+        updated.cengEmail,
+        ...(updated.cengEmailAliases ?? []),
+        updated.phone,
+        updated.school,
+        updated.grade,
+        updated.affiliation,
+        ...updated.roleIds,
+        ...updated.teamIds,
+      ]);
 
       setMembers((prev) => {
         const exists = prev.some((m) => m.id === memberId);
@@ -242,7 +280,10 @@ export function MembersProvider({ children }: { children: ReactNode }) {
 
       if (firebaseReady) {
         try {
-          await adminUpdateMember(memberId, patch);
+          await adminUpdateMember(memberId, {
+            ...patch,
+            searchKeywords: updated.searchKeywords,
+          });
           setSource("firestore");
         } catch (err) {
           console.warn("[members] adminPatchMember firestore failed", err);

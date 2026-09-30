@@ -150,16 +150,46 @@ export async function updateMemberProfile(
   );
 }
 
-/** Admin-only member fields (roles, teams, status, title) */
+/** Admin-only member field updates (any profile / roster field) */
 export async function adminUpdateMember(
   memberId: string,
-  patch: Partial<Pick<Member, "teamIds" | "roleIds" | "status" | "title">>
+  patch: Partial<
+    Pick<
+      Member,
+      | "teamIds"
+      | "roleIds"
+      | "status"
+      | "title"
+      | "fullName"
+      | "preferredName"
+      | "bio"
+      | "phone"
+      | "school"
+      | "grade"
+      | "personalEmail"
+      | "schoolEmail"
+      | "cengEmail"
+      | "cengEmailAliases"
+      | "linkedIn"
+      | "portfolio"
+      | "pfpUrl"
+      | "volunteerHoursUrl"
+      | "onboardingStatus"
+      | "affiliation"
+      | "searchKeywords"
+    >
+  >
 ): Promise<void> {
   const db = dbOrThrow();
+  const current = await fetchMemberById(memberId);
+  const merged = current ? { ...current, ...patch } : null;
   await updateDoc(
     doc(db, COLLECTIONS.members, memberId),
     stripUndefined({
       ...patch,
+      ...(merged
+        ? { emails: emailsForMember(merged) }
+        : {}),
       updatedAt: new Date().toISOString(),
     })
   );

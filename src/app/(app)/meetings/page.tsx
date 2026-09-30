@@ -9,25 +9,18 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { TeamEventCard } from "@/components/events/TeamEventCard";
 import { EventForm } from "@/components/events/EventForm";
 import {
-  filterEventsForTeams,
+  filterEventsForMeetingsPage,
   useTeamEvents,
 } from "@/lib/events/store";
 import { useTeamsStore } from "@/lib/teams/store";
 import { teamIdsForMember } from "@/lib/teams/membership";
+import {
+  canManageEvent,
+  leadTeamsFor,
+} from "@/lib/teams/permissions";
+import { nextOccurrenceStartsAt } from "@/lib/calendar";
 import { Button } from "@/components/ui/Button";
-import type { Member, Team, TeamEvent } from "@/types";
-
-function leadTeamsFor(member: Member, teams: Team[]) {
-  if (member.roleIds.includes("role_admin")) return teams;
-  return teams.filter((t) => t.leadIds.includes(member.id));
-}
-
-function canManageEvent(member: Member, event: TeamEvent, teams: Team[]) {
-  if (member.roleIds.includes("role_admin")) return true;
-  const team = teams.find((t) => t.id === event.teamId);
-  if (team?.leadIds.includes(member.id)) return true;
-  return event.createdBy === member.id;
-}
+import type { TeamEvent } from "@/types";
 
 export default function MeetingsPage() {
   const { member } = useAuth();
@@ -39,6 +32,7 @@ export default function MeetingsPage() {
 
   const [creating, setCreating] = useState(false);
   const [createTeamId, setCreateTeamId] = useState<string>("");
+  const [filterTeamId, setFilterTeamId] = useState<string>("all");
   const [editing, setEditing] = useState<TeamEvent | null>(null);
 
   const leadTeams = useMemo(
@@ -51,27 +45,60 @@ export default function MeetingsPage() {
     [member, teams]
   );
 
+  /** Teams shown in the filter: membership + any you lead */
+  const filterableTeams = useMemo(() => {
+    const ids = new Set([...myTeamIds, ...leadTeams.map((t) => t.id)]);
+    return teams
+      .filter((t) => ids.has(t.id))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [teams, myTeamIds, leadTeams]);
+
+  const visibleTeamIds = useMemo(() => {
+    if (filterTeamId === "all") {
+      return Array.from(
+        new Set([...myTeamIds, ...leadTeams.map((t) => t.id)])
+      );
+    }
+    return [filterTeamId];
+  }, [filterTeamId, myTeamIds, leadTeams]);
+
   const events = useMemo(
-    () => filterEventsForTeams(allEvents, myTeamIds),
-    [allEvents, myTeamIds]
+    () =>
+      filterEventsForMeetingsPage(
+        allEvents,
+        visibleTeamIds,
+        nextOccurrenceStartsAt
+      ),
+    [allEvents, visibleTeamIds]
   );
 
   if (!member) return null;
 
-  const defaultTeamId = createTeamId || leadTeams[0]?.id || "";
+  const defaultTeamId =
+    createTeamId ||
+    (filterTeamId !== "all" &&
+    leadTeams.some((t) => t.id === filterTeamId)
+      ? filterTeamId
+      : leadTeams[0]?.id) ||
+    "";
 
   return (
     <div className="max-w-2xl">
       <PageHeader
         title="Meetings"
-        description="Team events for groups you’re on. Leads can create, edit, and delete."
+        description="All upcoming and recurring meetings for your teams — not just today."
         actions={
           leadTeams.length > 0 ? (
             <Button
               size="sm"
               onClick={() => {
                 setEditing(null);
-                setCreateTeamId(leadTeams[0].id);
+                setCreateTeamId(
+                  filterTeamId !== "all" &&
+                    leadTeams.some((t) => t.id === filterTeamId)
+                    ? filterTeamId
+                    : leadTeams[0].id
+                );
                 setCreating(true);
               }}
             >
@@ -82,11 +109,43 @@ export default function MeetingsPage() {
         }
       />
 
+      {filterableTeams.length > 0 && (
+        <div className="mb-4">
+          <label className="mb-1 block text-xs text-tertiary">
+            Filter by team
+          </label>
+          <select
+            value={filterTeamId}
+            onChange={(e) => setFilterTeamId(e.target.value)}
+            className="input-field appearance-none"
+          >
+            <option value="all">All my teams</option>
+            {filterableTeams.map((t) => {
+              const lead = leadTeams.some((l) => l.id === t.id);
+              return (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                  {lead ? " (you lead)" : ""}
+                </option>
+              );
+            })}
+          </select>
+          {leadTeams.length > 0 && (
+            <p className="mt-1.5 text-[11px] text-tertiary">
+              You can create events for:{" "}
+              {leadTeams.map((t) => t.name).join(", ")}
+            </p>
+          )}
+        </div>
+      )}
+
       {creating && defaultTeamId && (
         <div className="mb-6">
           {leadTeams.length > 1 && (
             <label className="mb-3 block">
-              <span className="mb-1 block text-xs text-tertiary">Team</span>
+              <span className="mb-1 block text-xs text-tertiary">
+                Create event for
+              </span>
               <select
                 value={defaultTeamId}
                 onChange={(e) => setCreateTeamId(e.target.value)}
@@ -130,17 +189,27 @@ export default function MeetingsPage() {
 
       {events.length === 0 && !creating ? (
         <GlassCard className="py-10 text-center">
-          <p className="text-sm text-secondary">No upcoming team meetings.</p>
+          <p className="text-sm text-secondary">
+            {filterTeamId === "all"
+              ? "No upcoming or recurring meetings."
+              : "No meetings for this team."}
+          </p>
           {leadTeams.length > 0 && (
             <button
               type="button"
               onClick={() => {
-                setCreateTeamId(leadTeams[0].id);
+                setCreateTeamId(
+                  filterTeamId !== "all" &&
+                    leadTeams.some((t) => t.id === filterTeamId)
+                    ? filterTeamId
+                    : leadTeams[0].id
+                );
                 setCreating(true);
               }}
               className="mt-3 text-sm underline underline-offset-2"
             >
-              Create one for {leadTeams[0].name}
+              Create one
+              {leadTeams[0] ? ` for ${leadTeams[0].name}` : ""}
             </button>
           )}
         </GlassCard>

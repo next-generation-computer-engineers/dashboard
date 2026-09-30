@@ -30,28 +30,17 @@ import {
   useTeamEvents,
 } from "@/lib/events/store";
 import { useTeamsStore } from "@/lib/teams/store";
+import { useJoinRequests } from "@/lib/teams/joinRequests";
 import { teamIdsForMember } from "@/lib/teams/membership";
+import {
+  canManageEvent,
+  canManageTeamEvents,
+} from "@/lib/teams/permissions";
 import {
   googleCalendarUrlForTeamEvent,
   nextOccurrenceStartsAt,
 } from "@/lib/calendar";
-import type { Member, TeamEvent } from "@/types";
-
-function canManageTeamEvents(member: Member | null, teamLeadIds: string[]) {
-  if (!member) return false;
-  if (member.roleIds.includes("role_admin")) return true;
-  return teamLeadIds.includes(member.id);
-}
-
-function canManageEvent(
-  member: Member | null,
-  event: TeamEvent,
-  teamLeadIds: string[]
-) {
-  if (!member) return false;
-  if (canManageTeamEvents(member, teamLeadIds)) return true;
-  return event.createdBy === member.id;
-}
+import type { Member } from "@/types";
 
 export default function TeamDetailPage() {
   const params = useParams<{ id: string }>();
@@ -69,10 +58,15 @@ export default function TeamDetailPage() {
   const updateEvent = useTeamEvents((s) => s.updateEvent);
   const deleteEvent = useTeamEvents((s) => s.deleteEvent);
 
+  const allRequests = useJoinRequests((s) => s.requests);
+  const requestJoin = useJoinRequests((s) => s.requestJoin);
+  const cancelRequest = useJoinRequests((s) => s.cancel);
+
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [addQuery, setAddQuery] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [joinBusy, setJoinBusy] = useState(false);
 
   const team = teams.find((t) => t.id === params.id);
   const events = useMemo(
@@ -101,6 +95,16 @@ export default function TeamDetailPage() {
       .slice(0, 8);
   }, [members, team, addQuery]);
 
+  const myPendingRequest = useMemo(() => {
+    if (!member || !team) return undefined;
+    return allRequests.find(
+      (r) =>
+        r.status === "pending" &&
+        r.teamId === team.id &&
+        r.memberId === member.id
+    );
+  }, [allRequests, member, team]);
+
   async function syncMemberTeams(memberId: string) {
     const ids = teamIdsForMember(useTeamsStore.getState().teams, memberId);
     await adminPatchMember(memberId, { teamIds: ids });
@@ -125,8 +129,31 @@ export default function TeamDetailPage() {
     currentTeam.memberIds.includes(m.id)
   );
   const leads = members.filter((m) => currentTeam.leadIds.includes(m.id));
-  const canCreate = canManageTeamEvents(member, currentTeam.leadIds);
+  const canCreate = canManageTeamEvents(member, currentTeam);
   const editing = events.find((e) => e.id === editingId) ?? null;
+  const isMember = Boolean(
+    member && currentTeam.memberIds.includes(member.id)
+  );
+
+  async function onRequestJoin() {
+    if (!member) return;
+    setJoinBusy(true);
+    try {
+      requestJoin(currentTeam.id, member.id);
+    } finally {
+      setJoinBusy(false);
+    }
+  }
+
+  async function onCancelJoin() {
+    if (!member || !myPendingRequest) return;
+    setJoinBusy(true);
+    try {
+      cancelRequest(myPendingRequest.id, member.id);
+    } finally {
+      setJoinBusy(false);
+    }
+  }
 
   async function onAddMember(m: Member) {
     setBusyId(m.id);
@@ -203,6 +230,27 @@ export default function TeamDetailPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {!isMember && member && (
+            myPendingRequest ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={joinBusy}
+                onClick={() => void onCancelJoin()}
+              >
+                Cancel join request
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={joinBusy}
+                onClick={() => void onRequestJoin()}
+              >
+                Request to join
+              </Button>
+            )
+          )}
           {canCreate && (
             <Button
               onClick={() => {
@@ -283,7 +331,7 @@ export default function TeamDetailPage() {
           <div className="flex flex-col gap-3">
             {events.map((event) => {
               const creator = getById(event.createdBy);
-              const manage = canManageEvent(member, event, team.leadIds);
+              const manage = canManageEvent(member, event, teams);
               return (
                 <GlassCard key={event.id}>
                   <div className="flex items-start justify-between gap-3">
