@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
+import { useMemo } from "react";
 import {
   Video,
   ClipboardList,
@@ -13,12 +14,17 @@ import {
   Users,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { assignmentsForMember, getClass, TEAMS } from "@/data/seed";
+import { assignmentsForMember, getClass } from "@/data/seed";
 import { displayName } from "@/lib/permissions";
 import { PageHeader, SectionLabel } from "@/components/ui/PageHeader";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { TeamEventCard } from "@/components/events/TeamEventCard";
-import { useTeamEvents } from "@/lib/events/store";
+import {
+  filterEventsForTeams,
+  useTeamEvents,
+} from "@/lib/events/store";
+import { useTeamsStore } from "@/lib/teams/store";
+import { teamIdsForMember } from "@/lib/teams/membership";
 import {
   googleCalendarUrlForClass,
   isTeamEventOnDay,
@@ -29,7 +35,26 @@ import type { ClassEntity } from "@/types";
 
 export default function DashboardPage() {
   const { member } = useAuth();
-  const eventsForTeams = useTeamEvents((s) => s.eventsForTeams);
+  const allEvents = useTeamEvents((s) => s.events);
+  const teams = useTeamsStore((s) => s.teams);
+
+  const myTeamIds = useMemo(
+    () => (member ? teamIdsForMember(teams, member.id) : []),
+    [member, teams]
+  );
+
+  const myTeams = useMemo(
+    () => teams.filter((t) => myTeamIds.includes(t.id)),
+    [teams, myTeamIds]
+  );
+
+  const todaysMeetings = useMemo(() => {
+    if (!member) return [];
+    const today = new Date();
+    return filterEventsForTeams(allEvents, myTeamIds).filter((e) =>
+      isTeamEventOnDay(e, today)
+    );
+  }, [allEvents, myTeamIds, member]);
 
   if (!member) return null;
 
@@ -48,11 +73,6 @@ export default function DashboardPage() {
         Boolean(x.cls && x.cls.dayOfWeek === dayName && x.cls.status === "active")
     );
 
-  const todaysMeetings = eventsForTeams(member.teamIds).filter((e) =>
-    isTeamEventOnDay(e, today)
-  );
-
-  const myTeams = TEAMS.filter((t) => member.teamIds.includes(t.id));
   const hasSchedule = todaysClasses.length > 0 || todaysMeetings.length > 0;
   const hoursUrl = member.volunteerHoursUrl?.trim();
 

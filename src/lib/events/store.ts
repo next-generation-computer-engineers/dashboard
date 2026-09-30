@@ -27,8 +27,6 @@ interface TeamEventsState {
   createEvent: (input: CreateTeamEventInput) => TeamEvent;
   updateEvent: (id: string, input: CreateTeamEventInput) => TeamEvent | null;
   deleteEvent: (id: string) => void;
-  eventsForTeams: (teamIds: string[]) => TeamEvent[];
-  eventsForTeam: (teamId: string) => TeamEvent[];
 }
 
 function sortEvents(events: TeamEvent[]) {
@@ -48,7 +46,6 @@ function reconcileEvents(
 
   for (const seed of SEED_TEAM_EVENTS) {
     if (deleted.has(seed.id) || have.has(seed.id)) continue;
-    // Only auto-add seed events on a truly empty first install
     if (!stored) {
       list.push(seed);
       have.add(seed.id);
@@ -59,6 +56,41 @@ function reconcileEvents(
     events: sortEvents(list.filter((e) => !deleted.has(e.id))),
     deletedIds: [...deleted],
   };
+}
+
+export function filterEventsForTeams(
+  events: TeamEvent[],
+  teamIds: string[]
+): TeamEvent[] {
+  const setIds = new Set(teamIds);
+  const now = Date.now() - 2 * 60 * 60 * 1000;
+  return events
+    .filter((e) => setIds.has(e.teamId))
+    .filter((e) => {
+      const end = e.endsAt
+        ? new Date(e.endsAt).getTime()
+        : new Date(e.startsAt).getTime() + 2 * 60 * 60 * 1000;
+      if (e.recurringUntil) {
+        return new Date(e.recurringUntil).getTime() >= now;
+      }
+      return end >= now;
+    })
+    .sort(
+      (a, b) =>
+        new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
+    );
+}
+
+export function filterEventsForTeam(
+  events: TeamEvent[],
+  teamId: string
+): TeamEvent[] {
+  return events
+    .filter((e) => e.teamId === teamId)
+    .sort(
+      (a, b) =>
+        new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
+    );
 }
 
 export const useTeamEvents = create<TeamEventsState>()(
@@ -123,34 +155,6 @@ export const useTeamEvents = create<TeamEventsState>()(
           deletedIds,
         });
       },
-
-      eventsForTeams: (teamIds) => {
-        const setIds = new Set(teamIds);
-        const now = Date.now() - 2 * 60 * 60 * 1000;
-        return get()
-          .events.filter((e) => setIds.has(e.teamId))
-          .filter((e) => {
-            const end = e.endsAt
-              ? new Date(e.endsAt).getTime()
-              : new Date(e.startsAt).getTime() + 2 * 60 * 60 * 1000;
-            if (e.recurringUntil) {
-              return new Date(e.recurringUntil).getTime() >= now;
-            }
-            return end >= now;
-          })
-          .sort(
-            (a, b) =>
-              new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
-          );
-      },
-
-      eventsForTeam: (teamId) =>
-        get()
-          .events.filter((e) => e.teamId === teamId)
-          .sort(
-            (a, b) =>
-              new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
-          ),
     }),
     {
       name: "ceng_team_events_v2",

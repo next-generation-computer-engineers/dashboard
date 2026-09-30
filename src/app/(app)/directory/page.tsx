@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { TEAMS, CLASSES, assignmentsForMember } from "@/data/seed";
+import { CLASSES, assignmentsForMember } from "@/data/seed";
 import { useMembers } from "@/lib/members/MembersProvider";
+import { useTeamsStore } from "@/lib/teams/store";
 import { ALL_ROLES, displayName, getRolesByIds } from "@/lib/permissions";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from "@/components/ui/Avatar";
@@ -14,6 +15,7 @@ import type { MemberStatus } from "@/types";
 
 export default function DirectoryPage() {
   const { members, source } = useMembers();
+  const teams = useTeamsStore((s) => s.teams);
   const [query, setQuery] = useState("");
   const [roleId, setRoleId] = useState("all");
   const [teamId, setTeamId] = useState("all");
@@ -24,7 +26,7 @@ export default function DirectoryPage() {
     return members.filter((m) => {
       if (status !== "all" && m.status !== status) return false;
       if (roleId !== "all" && !m.roleIds.includes(roleId)) return false;
-      if (teamId !== "all" && !m.teamIds.includes(teamId)) return false;
+      if (teamId !== "all" && !m.teamIds.includes(teamId) && !teams.find((t) => t.id === teamId)?.memberIds.includes(m.id)) return false;
       if (classId !== "all") {
         const assigned = assignmentsForMember(m.id).some(
           (a) => a.classId === classId
@@ -33,9 +35,9 @@ export default function DirectoryPage() {
       }
 
       const roleNames = getRolesByIds(m.roleIds).map((r) => r.name);
-      const teamNames = TEAMS.filter((t) => m.teamIds.includes(t.id)).map(
-        (t) => t.name
-      );
+      const teamNames = teams
+        .filter((t) => t.memberIds.includes(m.id) || m.teamIds.includes(t.id))
+        .map((t) => t.name);
       const classNames = assignmentsForMember(m.id)
         .map((a) => CLASSES.find((c) => c.id === a.classId)?.name)
         .filter(Boolean) as string[];
@@ -46,7 +48,7 @@ export default function DirectoryPage() {
         ...classNames,
       ]);
     }).sort((a, b) => a.fullName.localeCompare(b.fullName));
-  }, [members, query, roleId, teamId, classId, status]);
+  }, [members, query, roleId, teamId, classId, status, teams]);
 
   return (
     <div>
@@ -99,7 +101,7 @@ export default function DirectoryPage() {
             onChange={setTeamId}
             options={[
               { value: "all", label: "All teams" },
-              ...TEAMS.map((t) => ({ value: t.id, label: t.name })),
+              ...teams.map((t) => ({ value: t.id, label: t.name })),
             ]}
           />
           <FilterSelect
@@ -124,7 +126,9 @@ export default function DirectoryPage() {
       <div className="flex flex-col gap-2">
         {filtered.map((m) => {
           const roles = getRolesByIds(m.roleIds).slice(0, 3);
-          const teams = TEAMS.filter((t) => m.teamIds.includes(t.id));
+          const memberTeams = teams.filter(
+            (t) => t.memberIds.includes(m.id) || m.teamIds.includes(t.id)
+          );
           return (
             <Link
               key={m.id}
@@ -149,9 +153,9 @@ export default function DirectoryPage() {
                     <span className="hidden md:inline">{m.schoolEmail}</span>
                   )}
                   {m.phone && <span>{formatPhone(m.phone)}</span>}
-                  {teams.length > 0 && (
+                  {memberTeams.length > 0 && (
                     <span className="hidden lg:inline">
-                      {teams.map((t) => t.name).join(" · ")}
+                      {memberTeams.map((t) => t.name).join(" · ")}
                     </span>
                   )}
                 </div>

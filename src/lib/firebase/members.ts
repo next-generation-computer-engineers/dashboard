@@ -149,3 +149,18 @@ export async function updateMemberProfile(
     })
   );
 }
+
+/** Admin-only member fields (roles, teams, status, title) */
+export async function adminUpdateMember(
+  memberId: string,
+  patch: Partial<Pick<Member, "teamIds" | "roleIds" | "status" | "title">>
+): Promise<void> {
+  const db = dbOrThrow();
+  await updateDoc(
+    doc(db, COLLECTIONS.members, memberId),
+    stripUndefined({
+      ...patch,
+      updatedAt: new Date().toISOString(),
+    })
+  );
+}

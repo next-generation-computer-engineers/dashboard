@@ -1,31 +1,138 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
+import { Plus } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { TEAMS, MEMBERS } from "@/data/seed";
-import { displayName } from "@/lib/permissions";
+import { useMembers } from "@/lib/members/MembersProvider";
+import { displayName, hasPermission } from "@/lib/permissions";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from "@/components/ui/Avatar";
-import { useTeamEvents } from "@/lib/events/store";
+import { Button } from "@/components/ui/Button";
+import { GlassCard } from "@/components/ui/GlassCard";
+import {
+  filterEventsForTeam,
+  useTeamEvents,
+} from "@/lib/events/store";
+import { useTeamsStore } from "@/lib/teams/store";
+import { teamIdsForMember } from "@/lib/teams/membership";
 
 export default function TeamsPage() {
   const { member } = useAuth();
-  const eventsForTeam = useTeamEvents((s) => s.eventsForTeam);
+  const { members, adminPatchMember } = useMembers();
+  const allEvents = useTeamEvents((s) => s.events);
+  const teams = useTeamsStore((s) => s.teams);
+  const createTeam = useTeamsStore((s) => s.createTeam);
+  const [showCreate, setShowCreate] = useState(false);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const canAdmin = Boolean(
+    member && hasPermission(member.roleIds, "admin:access")
+  );
+
+  const sorted = useMemo(
+    () => [...teams].sort((a, b) => a.name.localeCompare(b.name)),
+    [teams]
+  );
+
+  async function onCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim() || !member) return;
+    setSaving(true);
+    try {
+      const team = createTeam({
+        name,
+        description,
+        leadIds: [member.id],
+        memberIds: [member.id],
+      });
+      const ids = teamIdsForMember(
+        useTeamsStore.getState().teams,
+        member.id
+      );
+      await adminPatchMember(member.id, { teamIds: ids });
+      setName("");
+      setDescription("");
+      setShowCreate(false);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div>
       <PageHeader
         title="Teams"
-        description="Open a team to see members and events. Leads can create events for the group."
+        description={
+          canAdmin
+            ? "Open a team to manage members, leads, and events."
+            : "Open a team to see members and events. Leads can create events for the group."
+        }
+        actions={
+          canAdmin ? (
+            <Button size="sm" onClick={() => setShowCreate((v) => !v)}>
+              <Plus className="h-3.5 w-3.5" />
+              New team
+            </Button>
+          ) : undefined
+        }
       />
 
+      {showCreate && canAdmin && (
+        <GlassCard className="mb-6 max-w-lg">
+          <h2 className="mb-3 text-sm font-medium">Create team</h2>
+          <form onSubmit={(e) => void onCreate(e)} className="space-y-3">
+            <div>
+              <label className="mb-1 block text-xs text-tertiary">Name</label>
+              <input
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="input-field"
+                placeholder="Curriculum"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-tertiary">
+                Description
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="input-field !h-auto !py-2.5 resize-none"
+                rows={2}
+                placeholder="What does this team do?"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={saving || !name.trim()}>
+                {saving ? "Creating…" : "Create"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setShowCreate(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </GlassCard>
+      )}
+
       <div className="flex flex-col gap-3">
-        {TEAMS.map((team) => {
-          const members = MEMBERS.filter((m) => team.memberIds.includes(m.id));
-          const leads = MEMBERS.filter((m) => team.leadIds.includes(m.id));
-          const isMember = member ? team.memberIds.includes(member.id) : false;
+        {sorted.map((team) => {
+          const teamMembers = members.filter((m) =>
+            team.memberIds.includes(m.id)
+          );
+          const leads = members.filter((m) => team.leadIds.includes(m.id));
+          const isMember = member
+            ? team.memberIds.includes(member.id)
+            : false;
           const isLead = member ? team.leadIds.includes(member.id) : false;
-          const upcoming = eventsForTeam(team.id).length;
+          const upcoming = filterEventsForTeam(allEvents, team.id).length;
 
           return (
             <Link
@@ -58,12 +165,17 @@ export default function TeamsPage() {
                     {team.description}
                   </p>
                   <p className="mt-2 text-xs text-tertiary">
-                    Led by {leads.map((l) => displayName(l)).join(", ")}
-                    {upcoming > 0 ? ` · ${upcoming} event${upcoming === 1 ? "" : "s"}` : ""}
+                    {leads.length > 0
+                      ? `Led by ${leads.map((l) => displayName(l)).join(", ")}`
+                      : "No leads yet"}
+                    {upcoming > 0
+                      ? ` · ${upcoming} event${upcoming === 1 ? "" : "s"}`
+                      : ""}
+                    {` · ${teamMembers.length} member${teamMembers.length === 1 ? "" : "s"}`}
                   </p>
                 </div>
                 <div className="flex -space-x-2">
-                  {members.slice(0, 5).map((m) => (
+                  {teamMembers.slice(0, 5).map((m) => (
                     <Avatar
                       key={m.id}
                       name={displayName(m)}

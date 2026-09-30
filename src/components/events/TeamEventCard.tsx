@@ -10,8 +10,8 @@ import {
   Trash2,
 } from "lucide-react";
 import type { TeamEvent } from "@/types";
-import { getTeam } from "@/data/seed";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { useTeamsStore } from "@/lib/teams/store";
 import {
   googleCalendarUrlForTeamEvent,
   nextOccurrenceStartsAt,
@@ -26,7 +26,7 @@ export function TeamEventCard({
   onEdit?: () => void;
   onDelete?: () => void;
 }) {
-  const team = getTeam(event.teamId);
+  const team = useTeamsStore((s) => s.teams.find((t) => t.id === event.teamId));
   const occurrenceStart = nextOccurrenceStartsAt(event);
   const start = parseISO(occurrenceStart);
   const endIso =

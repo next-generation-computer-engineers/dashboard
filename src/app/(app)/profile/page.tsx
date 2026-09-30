@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { Camera } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { TEAMS, CLASSES, assignmentsForMember } from "@/data/seed";
+import { CLASSES, assignmentsForMember } from "@/data/seed";
+import { useTeamsStore } from "@/lib/teams/store";
 import { uploadProfilePhoto } from "@/lib/firebase/storage";
 import { displayName, getRolesByIds } from "@/lib/permissions";
 import { formatPhone } from "@/lib/utils";
@@ -17,6 +18,7 @@ import { Button } from "@/components/ui/Button";
 
 export default function ProfilePage() {
   const { member, user, firebaseReady, updateOwnProfile } = useAuth();
+  const allTeams = useTeamsStore((s) => s.teams);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [editing, setEditing] = useState(false);
@@ -47,7 +49,9 @@ export default function ProfilePage() {
   const profile = member;
   const name = displayName(profile);
   const roles = getRolesByIds(profile.roleIds);
-  const teams = TEAMS.filter((t) => profile.teamIds.includes(t.id));
+  const teams = allTeams.filter(
+    (t) => t.memberIds.includes(profile.id) || profile.teamIds.includes(t.id)
+  );
   const assignments = assignmentsForMember(profile.id);
   const photoSrc = previewUrl || profile.pfpUrl;
 

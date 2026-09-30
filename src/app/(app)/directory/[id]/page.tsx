@@ -13,8 +13,9 @@ import {
   Check,
 } from "lucide-react";
 import { useState } from "react";
-import { TEAMS, CLASSES, assignmentsForMember } from "@/data/seed";
+import { CLASSES, assignmentsForMember } from "@/data/seed";
 import { useMembers } from "@/lib/members/MembersProvider";
+import { useTeamsStore } from "@/lib/teams/store";
 import { displayName, getRolesByIds } from "@/lib/permissions";
 import { formatPhone } from "@/lib/utils";
 import { Avatar } from "@/components/ui/Avatar";
@@ -26,6 +27,7 @@ import { Button } from "@/components/ui/Button";
 export default function MemberProfilePage() {
   const params = useParams<{ id: string }>();
   const { getById } = useMembers();
+  const allTeams = useTeamsStore((s) => s.teams);
   const member = getById(params.id);
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -45,7 +47,9 @@ export default function MemberProfilePage() {
 
   const name = displayName(member);
   const roles = getRolesByIds(member.roleIds);
-  const teams = TEAMS.filter((t) => member.teamIds.includes(t.id));
+  const teams = allTeams.filter(
+    (t) => t.memberIds.includes(member.id) || member.teamIds.includes(t.id)
+  );
   const assignments = assignmentsForMember(member.id).map((a) => ({
     ...a,
     cls: CLASSES.find((c) => c.id === a.classId),

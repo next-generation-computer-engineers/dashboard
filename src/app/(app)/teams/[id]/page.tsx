@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
 import {
   ArrowLeft,
@@ -13,47 +13,98 @@ import {
   Plus,
   Trash2,
   Pencil,
+  Star,
+  UserMinus,
+  UserPlus,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { getTeam, MEMBERS, getMember, TEAMS } from "@/data/seed";
-import { displayName } from "@/lib/permissions";
+import { useMembers } from "@/lib/members/MembersProvider";
+import { displayName, hasPermission } from "@/lib/permissions";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionLabel } from "@/components/ui/PageHeader";
 import { EventForm } from "@/components/events/EventForm";
-import { useTeamEvents } from "@/lib/events/store";
+import {
+  filterEventsForTeam,
+  useTeamEvents,
+} from "@/lib/events/store";
+import { useTeamsStore } from "@/lib/teams/store";
+import { teamIdsForMember } from "@/lib/teams/membership";
 import {
   googleCalendarUrlForTeamEvent,
   nextOccurrenceStartsAt,
 } from "@/lib/calendar";
 import type { Member, TeamEvent } from "@/types";
 
-function canManageTeamEvents(member: Member | null, teamId: string) {
+function canManageTeamEvents(member: Member | null, teamLeadIds: string[]) {
   if (!member) return false;
   if (member.roleIds.includes("role_admin")) return true;
-  const team = TEAMS.find((t) => t.id === teamId);
-  return Boolean(team?.leadIds.includes(member.id));
+  return teamLeadIds.includes(member.id);
 }
 
-function canManageEvent(member: Member | null, event: TeamEvent) {
+function canManageEvent(
+  member: Member | null,
+  event: TeamEvent,
+  teamLeadIds: string[]
+) {
   if (!member) return false;
-  if (canManageTeamEvents(member, event.teamId)) return true;
+  if (canManageTeamEvents(member, teamLeadIds)) return true;
   return event.createdBy === member.id;
 }
 
 export default function TeamDetailPage() {
   const params = useParams<{ id: string }>();
   const { member } = useAuth();
-  const team = getTeam(params.id);
-  const eventsForTeam = useTeamEvents((s) => s.eventsForTeam);
+  const { members, adminPatchMember, getById } = useMembers();
+  const teams = useTeamsStore((s) => s.teams);
+  const updateTeam = useTeamsStore((s) => s.updateTeam);
+  const deleteTeam = useTeamsStore((s) => s.deleteTeam);
+  const addMember = useTeamsStore((s) => s.addMember);
+  const removeMember = useTeamsStore((s) => s.removeMember);
+  const setLead = useTeamsStore((s) => s.setLead);
+
+  const allEvents = useTeamEvents((s) => s.events);
   const createEvent = useTeamEvents((s) => s.createEvent);
   const updateEvent = useTeamEvents((s) => s.updateEvent);
   const deleteEvent = useTeamEvents((s) => s.deleteEvent);
+
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [addQuery, setAddQuery] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
 
-  const events = eventsForTeam(params.id);
+  const team = teams.find((t) => t.id === params.id);
+  const events = useMemo(
+    () => (team ? filterEventsForTeam(allEvents, team.id) : []),
+    [allEvents, team]
+  );
+
+  const isAdmin = Boolean(
+    member && hasPermission(member.roleIds, "admin:access")
+  );
+
+  const addCandidates = useMemo(() => {
+    if (!team) return [];
+    const q = addQuery.trim().toLowerCase();
+    return members
+      .filter((m) => !team.memberIds.includes(m.id))
+      .filter((m) => {
+        if (!q) return true;
+        return (
+          m.fullName.toLowerCase().includes(q) ||
+          m.personalEmail.toLowerCase().includes(q) ||
+          (m.schoolEmail?.toLowerCase().includes(q) ?? false)
+        );
+      })
+      .sort((a, b) => a.fullName.localeCompare(b.fullName))
+      .slice(0, 8);
+  }, [members, team, addQuery]);
+
+  async function syncMemberTeams(memberId: string) {
+    const ids = teamIdsForMember(useTeamsStore.getState().teams, memberId);
+    await adminPatchMember(memberId, { teamIds: ids });
+  }
 
   if (!team) {
     return (
@@ -69,10 +120,62 @@ export default function TeamDetailPage() {
     );
   }
 
-  const members = MEMBERS.filter((m) => team.memberIds.includes(m.id));
-  const leads = MEMBERS.filter((m) => team.leadIds.includes(m.id));
-  const canCreate = canManageTeamEvents(member, team.id);
+  const currentTeam = team;
+  const teamMembers = members.filter((m) =>
+    currentTeam.memberIds.includes(m.id)
+  );
+  const leads = members.filter((m) => currentTeam.leadIds.includes(m.id));
+  const canCreate = canManageTeamEvents(member, currentTeam.leadIds);
   const editing = events.find((e) => e.id === editingId) ?? null;
+
+  async function onAddMember(m: Member) {
+    setBusyId(m.id);
+    try {
+      addMember(currentTeam.id, m.id);
+      await syncMemberTeams(m.id);
+      setAddQuery("");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function onRemoveMember(m: Member) {
+    if (!confirm(`Remove ${displayName(m)} from ${currentTeam.name}?`)) return;
+    setBusyId(m.id);
+    try {
+      removeMember(currentTeam.id, m.id);
+      await syncMemberTeams(m.id);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function onToggleLead(m: Member) {
+    const makingLead = !currentTeam.leadIds.includes(m.id);
+    setBusyId(m.id);
+    try {
+      setLead(currentTeam.id, m.id, makingLead);
+      await syncMemberTeams(m.id);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function onDeleteTeam() {
+    if (
+      !confirm(
+        `Delete team “${currentTeam.name}”? Members stay in the directory; this only removes the team.`
+      )
+    ) {
+      return;
+    }
+    const affected = [...currentTeam.memberIds];
+    deleteTeam(currentTeam.id);
+    for (const id of affected) {
+      await syncMemberTeams(id);
+    }
+    window.location.href = "/teams";
+  }
 
   return (
     <div className="max-w-2xl">
@@ -99,19 +202,43 @@ export default function TeamDetailPage() {
             Led by {leads.map((l) => displayName(l)).join(", ") || "—"}
           </p>
         </div>
-        {canCreate && (
-          <Button
-            onClick={() => {
-              setEditingId(null);
-              setShowCreate(true);
-            }}
-            size="sm"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Create event
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {canCreate && (
+            <Button
+              onClick={() => {
+                setEditingId(null);
+                setShowCreate(true);
+              }}
+              size="sm"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Create event
+            </Button>
+          )}
+          {isAdmin && (
+            <Button size="sm" variant="danger" onClick={() => void onDeleteTeam()}>
+              Delete team
+            </Button>
+          )}
+        </div>
       </div>
+
+      {isAdmin && (
+        <GlassCard className="mb-8">
+          <h2 className="mb-1 text-sm font-medium">Team details</h2>
+          <p className="mb-3 text-xs text-tertiary">
+            Admins can rename the team and update its description.
+          </p>
+          <AdminTeamMeta
+            key={`${team.id}-${team.name}-${team.description}`}
+            name={team.name}
+            description={team.description}
+            onSave={(name, description) => {
+              updateTeam(team.id, { name, description });
+            }}
+          />
+        </GlassCard>
+      )}
 
       {showCreate && member && (
         <EventForm
@@ -155,8 +282,8 @@ export default function TeamDetailPage() {
         ) : (
           <div className="flex flex-col gap-3">
             {events.map((event) => {
-              const creator = getMember(event.createdBy);
-              const manage = canManageEvent(member, event);
+              const creator = getById(event.createdBy);
+              const manage = canManageEvent(member, event, team.leadIds);
               return (
                 <GlassCard key={event.id}>
                   <div className="flex items-start justify-between gap-3">
@@ -267,25 +394,149 @@ export default function TeamDetailPage() {
 
       <section>
         <SectionLabel>Members</SectionLabel>
-        <div className="divide-y divide-[var(--border)] overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)]">
-          {members.map((m) => (
-            <Link
-              key={m.id}
-              href={`/directory/${m.id}`}
-              className="flex items-center gap-3 px-3 py-2.5 hover:bg-[var(--surface-hover)]"
-            >
-              <Avatar name={displayName(m)} src={m.pfpUrl} size="sm" />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm">{displayName(m)}</p>
-                <p className="text-xs text-tertiary">
-                  {team.leadIds.includes(m.id) ? "Lead · " : ""}
-                  {m.title}
-                </p>
+
+        {isAdmin && (
+          <GlassCard className="mb-3">
+            <label className="mb-1 block text-xs text-tertiary">
+              Add member
+            </label>
+            <input
+              value={addQuery}
+              onChange={(e) => setAddQuery(e.target.value)}
+              placeholder="Search name or email…"
+              className="input-field"
+            />
+            {addQuery.trim() && (
+              <div className="mt-2 divide-y divide-[var(--border)] rounded-[var(--radius-sm)] border border-[var(--border)]">
+                {addCandidates.length === 0 ? (
+                  <p className="px-3 py-2 text-xs text-tertiary">No matches</p>
+                ) : (
+                  addCandidates.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      disabled={busyId === m.id}
+                      onClick={() => void onAddMember(m)}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-[var(--surface-hover)]"
+                    >
+                      <Avatar name={displayName(m)} src={m.pfpUrl} size="sm" />
+                      <span className="min-w-0 flex-1 truncate text-sm">
+                        {displayName(m)}
+                      </span>
+                      <UserPlus className="h-3.5 w-3.5 text-tertiary" />
+                    </button>
+                  ))
+                )}
               </div>
-            </Link>
-          ))}
+            )}
+          </GlassCard>
+        )}
+
+        <div className="divide-y divide-[var(--border)] overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)]">
+          {teamMembers.length === 0 ? (
+            <p className="px-3 py-6 text-center text-sm text-secondary">
+              No members yet.
+            </p>
+          ) : (
+            teamMembers.map((m) => {
+              const isLead = team.leadIds.includes(m.id);
+              return (
+                <div
+                  key={m.id}
+                  className="flex items-center gap-3 px-3 py-2.5"
+                >
+                  <Link
+                    href={`/directory/${m.id}`}
+                    className="flex min-w-0 flex-1 items-center gap-3 hover:opacity-90"
+                  >
+                    <Avatar name={displayName(m)} src={m.pfpUrl} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm">{displayName(m)}</p>
+                      <p className="text-xs text-tertiary">
+                        {isLead ? "Lead" : "Member"}
+                        {m.title ? ` · ${m.title}` : ""}
+                      </p>
+                    </div>
+                  </Link>
+                  {isAdmin && (
+                    <div className="flex shrink-0 gap-1">
+                      <button
+                        type="button"
+                        disabled={busyId === m.id}
+                        onClick={() => void onToggleLead(m)}
+                        className="rounded p-1.5 text-tertiary hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
+                        title={isLead ? "Remove lead" : "Make lead"}
+                        aria-label={isLead ? "Remove lead" : "Make lead"}
+                      >
+                        <Star
+                          className={`h-3.5 w-3.5 ${isLead ? "fill-current text-[var(--accent)]" : ""}`}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busyId === m.id}
+                        onClick={() => void onRemoveMember(m)}
+                        className="rounded p-1.5 text-tertiary hover:bg-[var(--surface-hover)] hover:text-[var(--danger)]"
+                        aria-label="Remove member"
+                      >
+                        <UserMinus className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </section>
     </div>
+  );
+}
+
+function AdminTeamMeta({
+  name: initialName,
+  description: initialDescription,
+  onSave,
+}: {
+  name: string;
+  description: string;
+  onSave: (name: string, description: string) => void;
+}) {
+  const [name, setName] = useState(initialName);
+  const [description, setDescription] = useState(initialDescription);
+  const dirty =
+    name.trim() !== initialName || description.trim() !== initialDescription;
+
+  return (
+    <form
+      className="space-y-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!name.trim()) return;
+        onSave(name.trim(), description.trim());
+      }}
+    >
+      <div>
+        <label className="mb-1 block text-xs text-tertiary">Name</label>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="input-field"
+          required
+        />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-tertiary">Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="input-field !h-auto !py-2.5 resize-none"
+          rows={2}
+        />
+      </div>
+      <Button type="submit" size="sm" disabled={!dirty || !name.trim()}>
+        Save details
+      </Button>
+    </form>
   );
 }

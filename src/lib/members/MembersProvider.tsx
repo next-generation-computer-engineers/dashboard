@@ -24,6 +24,7 @@ import {
   fetchAllMembers,
   linkAuthUserToMember,
   updateMemberProfile,
+  adminUpdateMember,
 } from "@/lib/firebase/members";
 
 type ProfilePatch = Partial<
@@ -37,6 +38,10 @@ type ProfilePatch = Partial<
     | "pfpUrl"
     | "volunteerHoursUrl"
   >
+>;
+
+type AdminMemberPatch = Partial<
+  Pick<Member, "teamIds" | "roleIds" | "status" | "title">
 >;
 
 interface MembersContextValue {
@@ -53,6 +58,10 @@ interface MembersContextValue {
     photoURL?: string | null;
   }) => Promise<Member | null>;
   saveProfile: (memberId: string, patch: ProfilePatch) => Promise<Member>;
+  adminPatchMember: (
+    memberId: string,
+    patch: AdminMemberPatch
+  ) => Promise<Member>;
 }
 
 const MembersContext = createContext<MembersContextValue | null>(null);
@@ -215,6 +224,36 @@ export function MembersProvider({ children }: { children: ReactNode }) {
     [firebaseReady, getById]
   );
 
+  const adminPatchMember = useCallback(
+    async (memberId: string, patch: AdminMemberPatch) => {
+      const current = getById(memberId);
+      if (!current) throw new Error("Member not found");
+      const updated: Member = {
+        ...current,
+        ...patch,
+        updatedAt: new Date().toISOString(),
+      };
+
+      setMembers((prev) => {
+        const exists = prev.some((m) => m.id === memberId);
+        if (!exists) return [...prev, updated];
+        return prev.map((m) => (m.id === memberId ? updated : m));
+      });
+
+      if (firebaseReady) {
+        try {
+          await adminUpdateMember(memberId, patch);
+          setSource("firestore");
+        } catch (err) {
+          console.warn("[members] adminPatchMember firestore failed", err);
+        }
+      }
+
+      return updated;
+    },
+    [firebaseReady, getById]
+  );
+
   const value = useMemo<MembersContextValue>(
     () => ({
       members,
@@ -225,6 +264,7 @@ export function MembersProvider({ children }: { children: ReactNode }) {
       refresh,
       linkAuthUser,
       saveProfile,
+      adminPatchMember,
     }),
     [
       members,
@@ -235,6 +275,7 @@ export function MembersProvider({ children }: { children: ReactNode }) {
       refresh,
       linkAuthUser,
       saveProfile,
+      adminPatchMember,
     ]
   );
 
