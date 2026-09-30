@@ -76,8 +76,7 @@ export async function upsertMember(member: Member): Promise<void> {
 }
 
 /**
- * Link a Firebase Auth user to their roster member.
- * Writes users/{uid} and sets members/{id}.authUid.
+ * Link Auth uid → member. Only patches auth fields — never overwrites bio/photo/etc.
  */
 export async function linkAuthUserToMember(opts: {
   uid: string;
@@ -88,18 +87,25 @@ export async function linkAuthUserToMember(opts: {
 }): Promise<Member> {
   const db = dbOrThrow();
   const now = new Date().toISOString();
+
+  // Prefer existing Firestore profile so we don't wipe edits with stale seed data
+  const existing = await fetchMemberById(opts.member.id);
+  const base = existing ?? opts.member;
+
   const linked: Member = {
-    ...opts.member,
+    ...base,
     authUid: opts.uid,
-    pfpUrl: opts.member.pfpUrl || opts.photoURL || undefined,
+    pfpUrl: base.pfpUrl || opts.photoURL || undefined,
     updatedAt: now,
   };
 
   await setDoc(
     doc(db, COLLECTIONS.members, linked.id),
     stripUndefined({
-      ...memberToFirestore(linked),
+      authUid: opts.uid,
+      updatedAt: now,
       emails: emailsForMember(linked),
+      ...(base.pfpUrl ? {} : opts.photoURL ? { pfpUrl: opts.photoURL } : {}),
     }),
     { merge: true }
   );
@@ -121,7 +127,12 @@ export async function linkAuthUserToMember(opts: {
 
 export async function updateMemberProfile(
   memberId: string,
-  patch: Partial<Pick<Member, "bio" | "phone" | "preferredName" | "linkedIn" | "portfolio" | "pfpUrl">>
+  patch: Partial<
+    Pick<
+      Member,
+      "bio" | "phone" | "preferredName" | "linkedIn" | "portfolio" | "pfpUrl"
+    >
+  >
 ): Promise<void> {
   const db = dbOrThrow();
   await updateDoc(

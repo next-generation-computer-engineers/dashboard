@@ -75,25 +75,33 @@ function teamIdsForVolunteer(v: VolunteerRow): string[] {
     r.includes("president") ||
     r.includes("advisor") ||
     r.includes("secretary") ||
-    r.includes("vp of operations")
+    r.includes("vp of operations") ||
+    r.includes("senior vp")
   ) {
     ids.push("team_leadership");
   }
-  if (r.includes("curriculum") || r.includes("tutorial") || r.includes("engineering")) {
+  if (
+    r.includes("curriculum") ||
+    r.includes("tutorial") ||
+    r.includes("engineering") ||
+    r.includes("training")
+  ) {
     ids.push("team_curriculum");
   }
   if (r.includes("marketing")) ids.push("team_marketing");
-  if (r.includes("outreach") || r.includes("recruiting") || r.includes("volunteering")) {
+  if (
+    r.includes("outreach") ||
+    r.includes("recruiting") ||
+    r.includes("volunteering") ||
+    r.includes("onboarding")
+  ) {
     ids.push("team_outreach");
   }
   if (r.includes("hackathon") || r.includes("special projects")) {
     ids.push("team_hackathon");
   }
-  if (r.includes("robotics")) ids.push("team_robotics_curriculum");
-  // Om + curriculum VPs often touch robotics materials
-  if (v.id === "v_om_anand_khaunte" || v.id === "v_karthik_yarakaraju") {
-    if (!ids.includes("team_robotics_curriculum")) ids.push("team_robotics_curriculum");
-    if (!ids.includes("team_curriculum")) ids.push("team_curriculum");
+  if (r.includes("backend")) {
+    ids.push("team_leadership");
   }
   return Array.from(new Set(ids));
 }

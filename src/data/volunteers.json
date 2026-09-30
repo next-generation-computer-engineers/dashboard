@@ -280,15 +280,16 @@
     "fullName": "Harshit(Hershey) Tiwari",
     "preferredName": "Harshit(Hershey)",
     "grade": "10",
-    "roleRaw": "Senior VP of Special Projects; VP of Backend; VP of Recruiting; VP of Training",
+    "roleRaw": "VP of Backend; VP of Recruiting; Senior VP of Special Projects; VP of Training",
     "roleIds": [
-      "role_core_team"
+      "role_core_team",
+      "role_vp_outreach"
     ],
-    "title": "Senior VP of Special Projects; VP of Backend; VP of Recruiting; VP of Training",
+    "title": "VP of Backend; VP of Recruiting; Senior VP of Special Projects; VP of Training",
     "school": "Los Altos High School",
     "phone": "6504692350",
     "personalEmail": "hersheychocobar1@gmail.com",
-    "schoolEmail": "100034846@mvla.net",
+    "schoolEmail": "25ht27951@lasdk8.org",
     "yearJoined": "2025",
     "cengEmail": "harshit@cengclass.org"
   },
@@ -306,7 +307,7 @@
     "school": "Los Altos High School",
     "phone": "6506759512",
     "personalEmail": "mcjinsolk11@gmail.com",
-    "schoolEmail": "100034855@mvla.net",
+    "schoolEmail": "ccullimore@lasdschools.org",
     "yearJoined": null,
     "cengEmail": "jinsol@cengclass.org"
   },
@@ -385,7 +386,8 @@
     "grade": "10",
     "roleRaw": "VP of Onboarding; VP of Training",
     "roleIds": [
-      "role_core_team"
+      "role_core_team",
+      "role_vp_outreach"
     ],
     "title": "VP of Onboarding; VP of Training",
     "school": "Los Altos High School",
@@ -400,13 +402,13 @@
     "fullName": "Om Anand Khaunte",
     "preferredName": "Om",
     "grade": "10",
-    "roleRaw": "VP of Operations; VP of Curriculum; VP of Engineering; VP of Training; VP of Curriculum",
+    "roleRaw": "VP of Operations; VP of Curriculum; VP of Engineering; VP of Training",
     "roleIds": [
-      "role_admin",
       "role_core_team",
+      "role_admin",
       "role_curriculum"
     ],
-    "title": "VP of Operations; VP of Curriculum; VP of Engineering; VP of Training; VP of Curriculum",
+    "title": "VP of Operations; VP of Curriculum; VP of Engineering; VP of Training",
     "school": "Los Altos High School",
     "phone": "4085075485",
     "personalEmail": "okhaunte@gmail.com",
@@ -487,13 +489,14 @@
     "fullName": "Saranya Duggirala",
     "preferredName": "Saranya",
     "grade": "10",
-    "roleRaw": "Member",
+    "roleRaw": "VP of Tutorial",
     "roleIds": [
-      "role_volunteer"
+      "role_core_team",
+      "role_curriculum"
     ],
-    "title": "Member",
+    "title": "VP of Tutorial",
     "school": "Saint Francis High School",
-    "phone": "16695774216",
+    "phone": "6695774216",
     "personalEmail": "saranya.duggirala10@gmail.com",
     "schoolEmail": "saranyaduggirala@sfhs.com",
     "yearJoined": null,
@@ -708,11 +711,12 @@
     "fullName": "Carsten Pribadi",
     "preferredName": "Carsten",
     "grade": "11",
-    "roleRaw": "Member",
+    "roleRaw": "VP of Tutorial",
     "roleIds": [
-      "role_volunteer"
+      "role_core_team",
+      "role_curriculum"
     ],
-    "title": "Member",
+    "title": "VP of Tutorial",
     "school": "Meridian World School",
     "phone": "7372972702",
     "personalEmail": "carstenpribadi@gmail.com",
@@ -741,10 +745,11 @@
     "id": "v_chloe_do",
     "fullName": "Chloe Do",
     "preferredName": "Chloe",
-    "grade": "11",
+    "grade": "12",
     "roleRaw": "VP of Volunteering",
     "roleIds": [
-      "role_core_team"
+      "role_core_team",
+      "role_vp_outreach"
     ],
     "title": "VP of Volunteering",
     "school": "Inderkum High School",
@@ -878,12 +883,12 @@
     "fullName": "Andrew Poh",
     "preferredName": "Andrew",
     "grade": "11",
-    "roleRaw": "VP of Curriculum",
+    "roleRaw": "VP of Tutorial",
     "roleIds": [
       "role_core_team",
       "role_curriculum"
     ],
-    "title": "VP of Curriculum",
+    "title": "VP of Tutorial",
     "school": "Los Altos High School",
     "phone": "6504692323",
     "personalEmail": "shangart17@gmail.com",
@@ -933,8 +938,8 @@
     "grade": "11",
     "roleRaw": "President",
     "roleIds": [
-      "role_admin",
-      "role_core_team"
+      "role_core_team",
+      "role_admin"
     ],
     "title": "President",
     "school": "Los Altos High School",
@@ -969,8 +974,8 @@
     "grade": "11",
     "roleRaw": "Co-President",
     "roleIds": [
-      "role_admin",
-      "role_core_team"
+      "role_core_team",
+      "role_admin"
     ],
     "title": "Co-President",
     "school": "Los Altos High School",
@@ -1003,12 +1008,13 @@
     "fullName": "Samhita Holla",
     "preferredName": "Samhita",
     "grade": "11",
-    "roleRaw": "Senior VP; VP of Backend; VP of Onboarding; VP of Curriculum",
+    "roleRaw": "Senior VP; VP of Backend; VP of Onboarding",
     "roleIds": [
       "role_core_team",
-      "role_curriculum"
+      "role_admin",
+      "role_vp_outreach"
     ],
-    "title": "Senior VP; VP of Backend; VP of Onboarding; VP of Curriculum",
+    "title": "Senior VP; VP of Backend; VP of Onboarding",
     "school": "Rolling Hills Middle School",
     "phone": "6692684302",
     "personalEmail": "samhi.holla@gmail.com",
@@ -1211,7 +1217,8 @@
     "grade": "12",
     "roleRaw": "Senior Advisor",
     "roleIds": [
-      "role_core_team"
+      "role_core_team",
+      "role_admin"
     ],
     "title": "Senior Advisor",
     "school": "Los Altos High School",
@@ -1260,12 +1267,13 @@
     "fullName": "Anjali Vashisht",
     "preferredName": "Anjali",
     "grade": "12",
-    "roleRaw": "VP of Volunteering; VP of Marketing",
+    "roleRaw": "VP of Marketing; VP of Volunteering",
     "roleIds": [
       "role_core_team",
-      "role_vp_marketing"
+      "role_vp_marketing",
+      "role_vp_outreach"
     ],
-    "title": "VP of Volunteering; VP of Marketing",
+    "title": "VP of Marketing; VP of Volunteering",
     "school": "Evergreen Valley High School",
     "phone": "4083332181",
     "personalEmail": "anjali.vashisht2020@gmail.com",
@@ -1364,12 +1372,13 @@
     "fullName": "Cinty Lin",
     "preferredName": "Cinty",
     "grade": "12",
-    "roleRaw": "Co-President",
+    "roleRaw": "Co-President; VP of Tutorial",
     "roleIds": [
+      "role_core_team",
       "role_admin",
-      "role_core_team"
+      "role_curriculum"
     ],
-    "title": "Co-President",
+    "title": "Co-President; VP of Tutorial",
     "school": "Mountain View High School",
     "phone": "6507728593",
     "personalEmail": "cinty.lin.cinty@gmail.com",
@@ -1503,12 +1512,12 @@
     "fullName": "Hritish Vaishnav",
     "preferredName": "Hritish",
     "grade": "12",
-    "roleRaw": "VP of Curriculum",
+    "roleRaw": "VP of Curriculum; VP of Tutorial",
     "roleIds": [
       "role_core_team",
       "role_curriculum"
     ],
-    "title": "VP of Curriculum",
+    "title": "VP of Curriculum; VP of Tutorial",
     "school": "Western Sierra Collegiate Academy",
     "phone": "9257949227",
     "personalEmail": "hritishv@gmail.com",
@@ -1589,12 +1598,13 @@
     "fullName": "Mel Kirti",
     "preferredName": "Mel",
     "grade": "12",
-    "roleRaw": "Secretary; Senior VP of Curriculum",
+    "roleRaw": "Secretary; Senior VP of Curriculum; VP of Tutorial",
     "roleIds": [
       "role_core_team",
+      "role_admin",
       "role_curriculum"
     ],
-    "title": "Secretary; Senior VP of Curriculum",
+    "title": "Secretary; Senior VP of Curriculum; VP of Tutorial",
     "school": "Mountain View High School",
     "phone": "6504002800",
     "personalEmail": "4melkirti@gmail.com",

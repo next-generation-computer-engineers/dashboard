@@ -31,33 +31,46 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
 
+  // Hydrate form only when not editing — prevents roster refreshes from wiping keystrokes
   useEffect(() => {
-    if (!member) return;
+    if (!member || editing) return;
     setPreferredName(member.preferredName ?? "");
     setBio(member.bio ?? "");
     setPhone(member.phone ?? "");
     setLinkedIn(member.linkedIn ?? "");
     setPortfolio(member.portfolio ?? "");
     setPreviewUrl(member.pfpUrl);
-  }, [member]);
+  }, [member, editing]);
 
   if (!member) return null;
 
-  const name = displayName(member);
-  const roles = getRolesByIds(member.roleIds);
-  const teams = TEAMS.filter((t) => member.teamIds.includes(t.id));
-  const assignments = assignmentsForMember(member.id);
-  const photoSrc = previewUrl || member.pfpUrl;
+  const profile = member;
+  const name = displayName(profile);
+  const roles = getRolesByIds(profile.roleIds);
+  const teams = TEAMS.filter((t) => profile.teamIds.includes(t.id));
+  const assignments = assignmentsForMember(profile.id);
+  const photoSrc = previewUrl || profile.pfpUrl;
+
+  function startEditing() {
+    setPreferredName(profile.preferredName ?? "");
+    setBio(profile.bio ?? "");
+    setPhone(profile.phone ?? "");
+    setLinkedIn(profile.linkedIn ?? "");
+    setPortfolio(profile.portfolio ?? "");
+    setPreviewUrl(profile.pfpUrl);
+    setError("");
+    setEditing(true);
+  }
 
   function cancel() {
     setEditing(false);
     setError("");
-    setPreferredName(member?.preferredName ?? "");
-    setBio(member?.bio ?? "");
-    setPhone(member?.phone ?? "");
-    setLinkedIn(member?.linkedIn ?? "");
-    setPortfolio(member?.portfolio ?? "");
-    setPreviewUrl(member?.pfpUrl);
+    setPreferredName(profile.preferredName ?? "");
+    setBio(profile.bio ?? "");
+    setPhone(profile.phone ?? "");
+    setLinkedIn(profile.linkedIn ?? "");
+    setPortfolio(profile.portfolio ?? "");
+    setPreviewUrl(profile.pfpUrl);
   }
 
   async function onPickPhoto(file: File | undefined) {
@@ -122,7 +135,7 @@ export default function ProfilePage() {
               </Button>
             </div>
           ) : (
-            <Button variant="secondary" onClick={() => setEditing(true)}>
+            <Button variant="secondary" onClick={startEditing}>
               Edit profile
             </Button>
           )
@@ -171,16 +184,16 @@ export default function ProfilePage() {
               {uploading ? "Uploading…" : "Click the camera to change photo"}
             </p>
             <h2 className="mt-4 font-display text-2xl tracking-tight">{name}</h2>
-            <p className="mt-1 text-sm text-secondary">{member.title}</p>
+            <p className="mt-1 text-sm text-secondary">{profile.title}</p>
             <div className="mt-3 flex justify-center">
-              <StatusDot status={member.status} />
+              <StatusDot status={profile.status} />
             </div>
             <div className="mt-4 flex flex-wrap justify-center gap-1.5">
               {roles.map((r) => (
                 <RoleBadge key={r.id} role={r} compact />
               ))}
             </div>
-            <Link href={`/directory/${member.id}`}>
+            <Link href={`/directory/${profile.id}`}>
               <Button variant="soft" size="sm" className="mt-6">
                 View public profile
               </Button>
@@ -188,7 +201,7 @@ export default function ProfilePage() {
           </GlassCard>
         </div>
 
-        <div className="lg:col-span-8 space-y-5">
+        <div className="space-y-5 lg:col-span-8">
           <div>
             <SectionLabel>About</SectionLabel>
             <GlassCard>
@@ -202,7 +215,7 @@ export default function ProfilePage() {
                 />
               ) : (
                 <p className="text-sm leading-relaxed text-secondary">
-                  {member.bio || "No bio yet. Hit Edit profile to add one."}
+                  {profile.bio || "No bio yet. Hit Edit profile to add one."}
                 </p>
               )}
             </GlassCard>
@@ -211,7 +224,7 @@ export default function ProfilePage() {
           <div>
             <SectionLabel>Contact details</SectionLabel>
             <GlassCard className="space-y-4">
-              <Field label="Full name" value={member.fullName} />
+              <Field label="Full name" value={profile.fullName} />
               {editing ? (
                 <label className="block">
                   <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-tertiary">
@@ -227,13 +240,13 @@ export default function ProfilePage() {
               ) : (
                 <Field
                   label="Preferred name"
-                  value={member.preferredName ?? "—"}
+                  value={profile.preferredName ?? "—"}
                 />
               )}
-              <Field label="Home email" value={member.personalEmail} />
-              <Field label="School email" value={member.schoolEmail ?? "—"} />
-              {member.cengEmail && (
-                <Field label="CENG email" value={member.cengEmail} />
+              <Field label="Home email" value={profile.personalEmail} />
+              <Field label="School email" value={profile.schoolEmail ?? "—"} />
+              {profile.cengEmail && (
+                <Field label="CENG email" value={profile.cengEmail} />
               )}
               {editing ? (
                 <label className="block">
@@ -248,10 +261,10 @@ export default function ProfilePage() {
                   />
                 </label>
               ) : (
-                <Field label="Phone" value={formatPhone(member.phone)} />
+                <Field label="Phone" value={formatPhone(profile.phone)} />
               )}
-              <Field label="School" value={member.school ?? "—"} />
-              {member.grade && <Field label="Grade" value={member.grade} />}
+              <Field label="School" value={profile.school ?? "—"} />
+              {profile.grade && <Field label="Grade" value={profile.grade} />}
             </GlassCard>
           </div>
 
@@ -285,8 +298,8 @@ export default function ProfilePage() {
                 </>
               ) : (
                 <>
-                  <Field label="LinkedIn" value={member.linkedIn ?? "—"} />
-                  <Field label="Portfolio" value={member.portfolio ?? "—"} />
+                  <Field label="LinkedIn" value={profile.linkedIn ?? "—"} />
+                  <Field label="Portfolio" value={profile.portfolio ?? "—"} />
                 </>
               )}
             </GlassCard>
@@ -300,7 +313,7 @@ export default function ProfilePage() {
                 if (!cls) return null;
                 return (
                   <Link key={a.id} href={`/classes/${cls.id}`}>
-                    <GlassCard hover className="!p-4 h-full">
+                    <GlassCard hover className="h-full !p-4">
                       <p className="text-sm font-medium">{cls.name}</p>
                       <p className="mt-1 text-[11px] capitalize text-secondary">
                         {a.classRole.replace(/_/g, " ")} · {a.status}
@@ -331,7 +344,7 @@ export default function ProfilePage() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-      <span className="text-[10px] uppercase tracking-wider text-tertiary sm:w-36 shrink-0">
+      <span className="shrink-0 text-[10px] uppercase tracking-wider text-tertiary sm:w-36">
         {label}
       </span>
       <span className="break-all text-sm text-secondary sm:text-right">

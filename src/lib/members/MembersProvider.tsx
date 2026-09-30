@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -55,15 +56,21 @@ export function MembersProvider({ children }: { children: ReactNode }) {
   const [members, setMembers] = useState<Member[]>(SEED_MEMBERS);
   const [source, setSource] = useState<"firestore" | "seed">("seed");
   const [loading, setLoading] = useState(firebaseReady);
+  const initialLoadDone = useRef(false);
+  const refreshInFlight = useRef(false);
 
   const refresh = useCallback(async () => {
     if (!firebaseReady) {
       setMembers(SEED_MEMBERS);
       setSource("seed");
       setLoading(false);
+      initialLoadDone.current = true;
       return;
     }
-    setLoading(true);
+    if (refreshInFlight.current) return;
+    refreshInFlight.current = true;
+    // Only block the UI on the first load — later refreshes must not unmount the app
+    if (!initialLoadDone.current) setLoading(true);
     try {
       const remote = await fetchAllMembers();
       if (remote.length > 0) {
@@ -75,9 +82,13 @@ export function MembersProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.warn("[members] Firestore load failed, using seed", err);
-      setMembers(SEED_MEMBERS);
-      setSource("seed");
+      if (!initialLoadDone.current) {
+        setMembers(SEED_MEMBERS);
+        setSource("seed");
+      }
     } finally {
+      refreshInFlight.current = false;
+      initialLoadDone.current = true;
       setLoading(false);
     }
   }, [firebaseReady]);
@@ -86,12 +97,19 @@ export function MembersProvider({ children }: { children: ReactNode }) {
     void refresh();
   }, [refresh]);
 
+  // One silent refresh after sign-in (rules may require auth). Do not re-run on token refresh loops.
   useEffect(() => {
     if (!firebaseReady) return;
     const auth = getFirebaseAuth();
     if (!auth) return;
+    let lastUid: string | null = null;
     return onAuthStateChanged(auth, (u) => {
-      if (u) void refresh();
+      const uid = u?.uid ?? null;
+      if (uid && uid !== lastUid) {
+        lastUid = uid;
+        void refresh();
+      }
+      if (!uid) lastUid = null;
     });
   }, [firebaseReady, refresh]);
 
@@ -129,7 +147,7 @@ export function MembersProvider({ children }: { children: ReactNode }) {
           member: local,
         });
         setMembers((prev) =>
-          prev.map((m) => (m.id === linked.id ? linked : m))
+          prev.map((m) => (m.id === linked.id ? { ...m, ...linked } : m))
         );
         setSource("firestore");
         return linked;
@@ -151,21 +169,22 @@ export function MembersProvider({ children }: { children: ReactNode }) {
         updatedAt: new Date().toISOString(),
       };
 
+      // Optimistic local update first so the UI doesn't snap back
+      setMembers((prev) => {
+        const exists = prev.some((m) => m.id === memberId);
+        if (!exists) return [...prev, updated];
+        return prev.map((m) => (m.id === memberId ? updated : m));
+      });
+
       if (firebaseReady) {
         try {
           await updateMemberProfile(memberId, patch);
           setSource("firestore");
         } catch (err) {
           console.warn("[members] saveProfile firestore failed", err);
-          // Still apply locally so demo / locked rules don't block UX
         }
       }
 
-      setMembers((prev) => {
-        const exists = prev.some((m) => m.id === memberId);
-        if (!exists) return [...prev, updated];
-        return prev.map((m) => (m.id === memberId ? updated : m));
-      });
       return updated;
     },
     [firebaseReady, getById]

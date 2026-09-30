@@ -25,7 +25,8 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     }
   }, [member, loading, isAuthRoute, router]);
 
-  if (loading) {
+  // Only block the tree before we know auth state — never unmount the app mid-session
+  if (loading && !member && !isAuthRoute) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--bg-base)]">
         <p className="text-sm text-secondary">Loading…</p>
@@ -33,8 +34,8 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!member && !isAuthRoute) return null;
-  if (member && isAuthRoute) return null;
+  if (!loading && !member && !isAuthRoute) return null;
+  if (!loading && member && isAuthRoute) return null;
 
   return <>{children}</>;
 }

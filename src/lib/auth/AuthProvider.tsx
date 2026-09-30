@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -95,15 +96,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     findByEmail,
     linkAuthUser,
     saveProfile,
-    members,
   } = useMembers();
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [resolvedMember, setResolvedMember] = useState<Member | null>(null);
+  const linkedUidRef = useRef<string | null>(null);
   const firebaseReady = isFirebaseConfigured();
 
   useEffect(() => {
-    // Clear legacy demo sessions
     try {
       localStorage.removeItem("ceng_demo_session");
     } catch {
@@ -124,10 +124,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthLoading(false);
+      if (!u) {
+        linkedUidRef.current = null;
+        setResolvedMember(null);
+      }
     });
     return () => unsub();
   }, [firebaseReady]);
 
+  // Link once per signed-in user after members are ready — not on every members refresh
   useEffect(() => {
     let cancelled = false;
 
@@ -137,6 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       if (membersLoading) return;
+      if (linkedUidRef.current === user.uid && resolvedMember) return;
 
       const linked = await linkAuthUser({
         uid: user.uid,
@@ -146,13 +152,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (cancelled) return;
+      linkedUidRef.current = user.uid;
 
       if (linked) {
         setResolvedMember(linked);
         return;
       }
 
-      // Signed in but not on roster — still allow entry as pending
       setResolvedMember({
         id: user.uid,
         authUid: user.uid,
@@ -175,10 +181,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [user, membersLoading, linkAuthUser, members, getById]);
+    // intentionally omit resolvedMember / members — link once per uid
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, membersLoading, linkAuthUser]);
+
+  // Soft-sync roster updates into the signed-in member without wiping newer local edits
+  useEffect(() => {
+    setResolvedMember((prev) => {
+      if (!prev) return prev;
+      const fresh = getById(prev.id);
+      if (!fresh || fresh.updatedAt === prev.updatedAt) return prev;
+      return { ...fresh, ...pickNewerLocal(prev, fresh) };
+    });
+  }, [getById]);
 
   const signInEmail = useCallback(async (email: string, password: string) => {
     const auth = requireFirebase();
+    linkedUidRef.current = null;
     await signInWithEmailAndPassword(auth, email.trim(), password);
   }, []);
 
@@ -191,17 +210,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           "This email isn’t on the CENG volunteer list. Use your home, school, or @cengclass.org email."
         );
       }
+      linkedUidRef.current = null;
       const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
       const name = fullName.trim() || roster.fullName;
       if (name) {
         await updateProfile(cred.user, { displayName: name });
       }
-      await linkAuthUser({
+      const linked = await linkAuthUser({
         uid: cred.user.uid,
         email: cred.user.email ?? email,
         displayName: name,
         photoURL: cred.user.photoURL,
       });
+      if (linked) {
+        linkedUidRef.current = cred.user.uid;
+        setResolvedMember(linked);
+      }
     },
     [findByEmail, linkAuthUser]
   );
@@ -210,6 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const auth = requireFirebase();
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
+    linkedUidRef.current = null;
     const result = await signInWithPopup(auth, provider);
     const roster = findByEmail(result.user.email);
     if (!roster) {
@@ -218,12 +243,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         "That Google account isn’t on the CENG volunteer list. Use your home, school, or @cengclass.org email."
       );
     }
-    await linkAuthUser({
+    const linked = await linkAuthUser({
       uid: result.user.uid,
       email: result.user.email ?? "",
       displayName: result.user.displayName,
       photoURL: result.user.photoURL,
     });
+    if (linked) {
+      linkedUidRef.current = result.user.uid;
+      setResolvedMember(linked);
+    }
   }, [findByEmail, linkAuthUser]);
 
   const resetPassword = useCallback(async (email: string) => {
@@ -232,6 +261,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
+    linkedUidRef.current = null;
     setResolvedMember(null);
     const auth = getFirebaseAuth();
     if (auth && user) await firebaseSignOut(auth);
@@ -254,15 +284,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [resolvedMember, saveProfile]
   );
 
-  useEffect(() => {
-    if (!resolvedMember) return;
-    const fresh = getById(resolvedMember.id);
-    if (fresh && fresh.updatedAt !== resolvedMember.updatedAt) {
-      setResolvedMember(fresh);
-    }
-  }, [members, getById, resolvedMember]);
-
-  const loading = authLoading || (Boolean(user) && membersLoading);
+  const loading = authLoading || (Boolean(user) && membersLoading && !resolvedMember);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -292,6 +314,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+function pickNewerLocal(prev: Member, fresh: Member): Partial<Member> {
+  // If local update is newer, keep editable fields from prev
+  if (prev.updatedAt > fresh.updatedAt) {
+    return {
+      bio: prev.bio,
+      phone: prev.phone,
+      preferredName: prev.preferredName,
+      linkedIn: prev.linkedIn,
+      portfolio: prev.portfolio,
+      pfpUrl: prev.pfpUrl,
+      updatedAt: prev.updatedAt,
+    };
+  }
+  return {};
 }
 
 export function useAuth() {

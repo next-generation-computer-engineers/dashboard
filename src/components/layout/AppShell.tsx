@@ -111,6 +111,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           "fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-[var(--border)] bg-[var(--bg-base)] transition-[width] duration-200 md:flex",
           collapsed ? "w-[72px]" : "w-[var(--sidebar-width)]"
         )}
+        style={{ pointerEvents: "auto" }}
       >
         <div className="flex h-[var(--topbar-height)] items-center justify-between gap-1 px-3">
           <BrandLogo height={collapsed ? 22 : 28} />
