@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import {
   ArrowLeft,
@@ -12,22 +12,35 @@ import {
   ExternalLink,
   Plus,
   Trash2,
-  X,
+  Pencil,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { getTeam, MEMBERS, getMember } from "@/data/seed";
+import { getTeam, MEMBERS, getMember, TEAMS } from "@/data/seed";
 import { displayName } from "@/lib/permissions";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionLabel } from "@/components/ui/PageHeader";
+import { EventForm } from "@/components/events/EventForm";
 import { useTeamEvents } from "@/lib/events/store";
 import {
   googleCalendarUrlForTeamEvent,
   nextOccurrenceStartsAt,
 } from "@/lib/calendar";
-import type { TeamEventMaterial } from "@/types";
-import { cn } from "@/lib/utils";
+import type { Member, TeamEvent } from "@/types";
+
+function canManageTeamEvents(member: Member | null, teamId: string) {
+  if (!member) return false;
+  if (member.roleIds.includes("role_admin")) return true;
+  const team = TEAMS.find((t) => t.id === teamId);
+  return Boolean(team?.leadIds.includes(member.id));
+}
+
+function canManageEvent(member: Member | null, event: TeamEvent) {
+  if (!member) return false;
+  if (canManageTeamEvents(member, event.teamId)) return true;
+  return event.createdBy === member.id;
+}
 
 export default function TeamDetailPage() {
   const params = useParams<{ id: string }>();
@@ -35,8 +48,10 @@ export default function TeamDetailPage() {
   const team = getTeam(params.id);
   const eventsForTeam = useTeamEvents((s) => s.eventsForTeam);
   const createEvent = useTeamEvents((s) => s.createEvent);
+  const updateEvent = useTeamEvents((s) => s.updateEvent);
   const deleteEvent = useTeamEvents((s) => s.deleteEvent);
   const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const events = eventsForTeam(params.id);
 
@@ -44,7 +59,10 @@ export default function TeamDetailPage() {
     return (
       <div className="py-16 text-center">
         <p className="text-lg">Team not found</p>
-        <Link href="/teams" className="mt-3 inline-block text-sm underline text-secondary">
+        <Link
+          href="/teams"
+          className="mt-3 inline-block text-sm text-secondary underline"
+        >
           Back to teams
         </Link>
       </div>
@@ -53,7 +71,8 @@ export default function TeamDetailPage() {
 
   const members = MEMBERS.filter((m) => team.memberIds.includes(m.id));
   const leads = MEMBERS.filter((m) => team.leadIds.includes(m.id));
-  const isLead = Boolean(member && team.leadIds.includes(member.id));
+  const canCreate = canManageTeamEvents(member, team.id);
+  const editing = events.find((e) => e.id === editingId) ?? null;
 
   return (
     <div className="max-w-2xl">
@@ -73,13 +92,21 @@ export default function TeamDetailPage() {
             />
             <h1 className="text-2xl font-medium tracking-tight">{team.name}</h1>
           </div>
-          <p className="mt-2 max-w-lg text-sm text-secondary">{team.description}</p>
+          <p className="mt-2 max-w-lg text-sm text-secondary">
+            {team.description}
+          </p>
           <p className="mt-2 text-xs text-tertiary">
-            Led by {leads.map((l) => displayName(l)).join(", ")}
+            Led by {leads.map((l) => displayName(l)).join(", ") || "—"}
           </p>
         </div>
-        {isLead && (
-          <Button onClick={() => setShowCreate(true)} size="sm">
+        {canCreate && (
+          <Button
+            onClick={() => {
+              setEditingId(null);
+              setShowCreate(true);
+            }}
+            size="sm"
+          >
             <Plus className="h-3.5 w-3.5" />
             Create event
           </Button>
@@ -87,13 +114,29 @@ export default function TeamDetailPage() {
       </div>
 
       {showCreate && member && (
-        <CreateEventForm
+        <EventForm
+          mode="create"
           teamId={team.id}
           createdBy={member.id}
           onCancel={() => setShowCreate(false)}
-          onCreate={(input) => {
+          onSubmit={(input) => {
             createEvent(input);
             setShowCreate(false);
+          }}
+        />
+      )}
+
+      {editing && member && (
+        <EventForm
+          key={editing.id}
+          mode="edit"
+          teamId={team.id}
+          createdBy={member.id}
+          initial={editing}
+          onCancel={() => setEditingId(null)}
+          onSubmit={(input) => {
+            updateEvent(editing.id, input);
+            setEditingId(null);
           }}
         />
       )}
@@ -104,20 +147,26 @@ export default function TeamDetailPage() {
           <GlassCard>
             <p className="text-sm text-secondary">
               No events yet.
-              {isLead ? " Create one so teammates see it on their home dashboard." : ""}
+              {canCreate
+                ? " Create one so teammates see it on Home and Meetings."
+                : ""}
             </p>
           </GlassCard>
         ) : (
           <div className="flex flex-col gap-3">
             {events.map((event) => {
               const creator = getMember(event.createdBy);
+              const manage = canManageEvent(member, event);
               return (
                 <GlassCard key={event.id}>
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
                       <h3 className="text-sm font-medium">{event.title}</h3>
                       <p className="mt-1 text-xs text-tertiary">
-                        {format(parseISO(event.startsAt), "EEE, MMM d · h:mm a")}
+                        {format(
+                          parseISO(event.startsAt),
+                          "EEE, MMM d · h:mm a"
+                        )}
                         {event.recurringUntil ? " · Weekly" : ""}
                         {creator ? ` · by ${displayName(creator)}` : ""}
                       </p>
@@ -127,15 +176,37 @@ export default function TeamDetailPage() {
                         </p>
                       )}
                     </div>
-                    {isLead && (
-                      <button
-                        type="button"
-                        onClick={() => deleteEvent(event.id)}
-                        className="rounded p-1.5 text-tertiary hover:bg-[var(--surface-hover)] hover:text-[var(--danger)]"
-                        aria-label="Delete event"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                    {manage && (
+                      <div className="flex shrink-0 gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowCreate(false);
+                            setEditingId(event.id);
+                          }}
+                          className="rounded p-1.5 text-tertiary hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
+                          aria-label="Edit event"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (
+                              confirm(
+                                `Delete “${event.title}”? This can’t be undone.`
+                              )
+                            ) {
+                              deleteEvent(event.id);
+                              if (editingId === event.id) setEditingId(null);
+                            }
+                          }}
+                          className="rounded p-1.5 text-tertiary hover:bg-[var(--surface-hover)] hover:text-[var(--danger)]"
+                          aria-label="Delete event"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     )}
                   </div>
 
@@ -216,234 +287,5 @@ export default function TeamDetailPage() {
         </div>
       </section>
     </div>
-  );
-}
-
-function CreateEventForm({
-  teamId,
-  createdBy,
-  onCancel,
-  onCreate,
-}: {
-  teamId: string;
-  createdBy: string;
-  onCancel: () => void;
-  onCreate: (input: {
-    teamId: string;
-    title: string;
-    description?: string;
-    startsAt: string;
-    endsAt?: string;
-    zoomLink?: string;
-    materials: TeamEventMaterial[];
-    recurringUntil?: string;
-    createdBy: string;
-  }) => void;
-}) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("18:00");
-  const [duration, setDuration] = useState("60");
-  const [zoomLink, setZoomLink] = useState("");
-  const [recurring, setRecurring] = useState(false);
-  const [recurringUntil, setRecurringUntil] = useState("");
-  const [materials, setMaterials] = useState<{ title: string; url: string }[]>([
-    { title: "", url: "" },
-  ]);
-
-  const canSubmit = useMemo(
-    () => title.trim() && date && time,
-    [title, date, time]
-  );
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!canSubmit) return;
-    const startsAt = new Date(`${date}T${time}:00`);
-    const endsAt = new Date(
-      startsAt.getTime() + Number(duration) * 60 * 1000
-    );
-    onCreate({
-      teamId,
-      title,
-      description,
-      startsAt: startsAt.toISOString(),
-      endsAt: endsAt.toISOString(),
-      zoomLink,
-      materials: materials
-        .filter((m) => m.title.trim() && m.url.trim())
-        .map((m, i) => ({
-          id: `mat_${Date.now()}_${i}`,
-          title: m.title.trim(),
-          url: m.url.trim(),
-          type: "link" as const,
-        })),
-      recurringUntil: recurring && recurringUntil ? recurringUntil : undefined,
-      createdBy,
-    });
-  }
-
-  return (
-    <GlassCard className="mb-8 relative">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-medium">New team event</h2>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded p-1 text-tertiary hover:text-secondary"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-
-      <form onSubmit={submit} className="space-y-3">
-        <div>
-          <label className="mb-1 block text-xs text-tertiary">Title</label>
-          <input
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="input-field"
-            placeholder="Weekly curriculum sync"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-tertiary">Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="input-field !h-auto !py-2.5 resize-none"
-            rows={2}
-            placeholder="What should people prepare?"
-          />
-        </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div>
-            <label className="mb-1 block text-xs text-tertiary">Date</label>
-            <input
-              type="date"
-              required
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-tertiary">Time</label>
-            <input
-              type="time"
-              required
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-tertiary">Duration</label>
-            <select
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              className="input-field appearance-none"
-            >
-              <option value="30">30 min</option>
-              <option value="45">45 min</option>
-              <option value="60">1 hour</option>
-              <option value="90">1.5 hours</option>
-              <option value="120">2 hours</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-tertiary">Zoom link</label>
-          <input
-            value={zoomLink}
-            onChange={(e) => setZoomLink(e.target.value)}
-            className="input-field"
-            placeholder="https://zoom.us/j/…"
-          />
-        </div>
-
-        <label className="flex items-center gap-2 text-sm text-secondary">
-          <input
-            type="checkbox"
-            checked={recurring}
-            onChange={(e) => setRecurring(e.target.checked)}
-            className="rounded border-[var(--border)]"
-          />
-          Weekly recurring
-        </label>
-        {recurring && (
-          <div>
-            <label className="mb-1 block text-xs text-tertiary">
-              Repeat until
-            </label>
-            <input
-              type="date"
-              value={recurringUntil}
-              onChange={(e) => setRecurringUntil(e.target.value)}
-              className="input-field"
-            />
-          </div>
-        )}
-
-        <div>
-          <div className="mb-1.5 flex items-center justify-between">
-            <label className="text-xs text-tertiary">Materials</label>
-            <button
-              type="button"
-              onClick={() =>
-                setMaterials((m) => [...m, { title: "", url: "" }])
-              }
-              className="text-xs text-secondary hover:text-[var(--text-primary)]"
-            >
-              + Add link
-            </button>
-          </div>
-          <div className="space-y-2">
-            {materials.map((mat, i) => (
-              <div key={i} className="grid gap-2 sm:grid-cols-2">
-                <input
-                  value={mat.title}
-                  onChange={(e) =>
-                    setMaterials((list) =>
-                      list.map((item, idx) =>
-                        idx === i ? { ...item, title: e.target.value } : item
-                      )
-                    )
-                  }
-                  className="input-field"
-                  placeholder="Doc title"
-                />
-                <input
-                  value={mat.url}
-                  onChange={(e) =>
-                    setMaterials((list) =>
-                      list.map((item, idx) =>
-                        idx === i ? { ...item, url: e.target.value } : item
-                      )
-                    )
-                  }
-                  className="input-field"
-                  placeholder="https://…"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex gap-2 pt-1">
-          <Button type="submit" disabled={!canSubmit}>
-            Publish to team
-          </Button>
-          <Button type="button" variant="ghost" onClick={onCancel}>
-            Cancel
-          </Button>
-        </div>
-        <p className={cn("text-[11px] text-tertiary")}>
-          Teammates will see this on their home dashboard with Join + materials.
-        </p>
-      </form>
-    </GlassCard>
   );
 }

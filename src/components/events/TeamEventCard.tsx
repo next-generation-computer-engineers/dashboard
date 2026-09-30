@@ -1,14 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { format, parseISO } from "date-fns";
 import {
   Video,
-  ClipboardList,
-  FolderOpen,
   CalendarPlus,
   ExternalLink,
   FileText,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import type { TeamEvent } from "@/types";
 import { getTeam } from "@/data/seed";
@@ -18,7 +17,15 @@ import {
   nextOccurrenceStartsAt,
 } from "@/lib/calendar";
 
-export function TeamEventCard({ event }: { event: TeamEvent }) {
+export function TeamEventCard({
+  event,
+  onEdit,
+  onDelete,
+}: {
+  event: TeamEvent;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}) {
   const team = getTeam(event.teamId);
   const occurrenceStart = nextOccurrenceStartsAt(event);
   const start = parseISO(occurrenceStart);
@@ -45,26 +52,52 @@ export function TeamEventCard({ event }: { event: TeamEvent }) {
 
   return (
     <GlassCard>
-      <div className="min-w-0">
-        {team && (
-          <p className="mb-1 flex items-center gap-2 text-xs text-tertiary">
-            <span
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ background: team.color }}
-            />
-            {team.name}
-            {event.recurringUntil ? " · Weekly" : ""}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          {team && (
+            <p className="mb-1 flex items-center gap-2 text-xs text-tertiary">
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ background: team.color }}
+              />
+              {team.name}
+              {event.recurringUntil ? " · Weekly" : ""}
+            </p>
+          )}
+          <h3 className="text-base font-medium tracking-tight">{event.title}</h3>
+          <p className="mt-1 text-sm text-secondary">
+            {format(start, "EEE, MMM d · h:mm a")}
+            {event.endsAt
+              ? ` – ${format(parseISO(endIso), "h:mm a")}`
+              : ""}
           </p>
-        )}
-        <h3 className="text-base font-medium tracking-tight">{event.title}</h3>
-        <p className="mt-1 text-sm text-secondary">
-          {format(start, "EEE, MMM d · h:mm a")}
-          {event.endsAt
-            ? ` – ${format(parseISO(endIso), "h:mm a")}`
-            : ""}
-        </p>
-        {event.description && (
-          <p className="mt-2 text-sm text-secondary">{event.description}</p>
+          {event.description && (
+            <p className="mt-2 text-sm text-secondary">{event.description}</p>
+          )}
+        </div>
+        {(onEdit || onDelete) && (
+          <div className="flex shrink-0 gap-1">
+            {onEdit && (
+              <button
+                type="button"
+                onClick={onEdit}
+                className="rounded p-1.5 text-tertiary hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
+                aria-label="Edit event"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={onDelete}
+                className="rounded p-1.5 text-tertiary hover:bg-[var(--surface-hover)] hover:text-[var(--danger)]"
+                aria-label="Delete event"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
         )}
       </div>
 
