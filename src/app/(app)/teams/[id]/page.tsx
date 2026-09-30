@@ -31,7 +31,11 @@ import {
 } from "@/lib/events/store";
 import { useTeamsStore } from "@/lib/teams/store";
 import { useJoinRequests } from "@/lib/teams/joinRequests";
-import { teamIdsForMember } from "@/lib/teams/membership";
+import {
+  isTeamMember,
+  ledByLabel,
+  teamIdsForMember,
+} from "@/lib/teams/membership";
 import {
   canManageEvent,
   canManageTeamEvents,
@@ -128,12 +132,12 @@ export default function TeamDetailPage() {
   const teamMembers = members.filter((m) =>
     currentTeam.memberIds.includes(m.id)
   );
-  const leads = members.filter((m) => currentTeam.leadIds.includes(m.id));
   const canCreate = canManageTeamEvents(member, currentTeam);
   const editing = events.find((e) => e.id === editingId) ?? null;
   const isMember = Boolean(
-    member && currentTeam.memberIds.includes(member.id)
+    member && isTeamMember(currentTeam, member.id)
   );
+  const canView = isAdmin || isMember;
 
   async function onRequestJoin() {
     if (!member) return;
@@ -204,6 +208,50 @@ export default function TeamDetailPage() {
     window.location.href = "/teams";
   }
 
+  if (!canView) {
+    return (
+      <div className="max-w-lg py-10">
+        <Link
+          href="/teams"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-secondary hover:text-[var(--text-primary)]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Teams
+        </Link>
+        <GlassCard className="text-center">
+          <h1 className="text-lg font-medium">{currentTeam.name}</h1>
+          <p className="mt-2 text-sm text-secondary">
+            You’re not on this team, so its members and events are private.
+          </p>
+          <p className="mt-1 text-xs text-tertiary">
+            {ledByLabel(currentTeam, members)}
+          </p>
+          {member && (
+            <div className="mt-4">
+              {myPendingRequest ? (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={joinBusy}
+                  onClick={() => void onCancelJoin()}
+                >
+                  Cancel join request
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  disabled={joinBusy}
+                  onClick={() => void onRequestJoin()}
+                >
+                  Request to join
+                </Button>
+              )}
+            </div>
+          )}
+        </GlassCard>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl">
       <Link
@@ -226,31 +274,10 @@ export default function TeamDetailPage() {
             {team.description}
           </p>
           <p className="mt-2 text-xs text-tertiary">
-            Led by {leads.map((l) => displayName(l)).join(", ") || "—"}
+            {ledByLabel(currentTeam, members)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {!isMember && member && (
-            myPendingRequest ? (
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={joinBusy}
-                onClick={() => void onCancelJoin()}
-              >
-                Cancel join request
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={joinBusy}
-                onClick={() => void onRequestJoin()}
-              >
-                Request to join
-              </Button>
-            )
-          )}
           {canCreate && (
             <Button
               onClick={() => {

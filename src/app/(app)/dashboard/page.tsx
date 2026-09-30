@@ -277,7 +277,7 @@ export default function DashboardPage() {
               href="/teams"
               className="text-xs text-tertiary hover:text-[var(--text-primary)]"
             >
-              All teams
+              My teams
             </Link>
           </div>
           {myTeams.length === 0 ? (
