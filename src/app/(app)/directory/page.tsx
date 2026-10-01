@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { CLASSES, assignmentsForMember } from "@/data/seed";
+import { CLASSES } from "@/data/seed";
 import { useMembers } from "@/lib/members/MembersProvider";
 import { useTeamsStore } from "@/lib/teams/store";
+import { useClassAssignments } from "@/lib/classes/assignmentsStore";
 import { ALL_ROLES, displayName, getRolesByIds } from "@/lib/permissions";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from "@/components/ui/Avatar";
@@ -16,6 +17,7 @@ import type { MemberStatus } from "@/types";
 export default function DirectoryPage() {
   const { members, source } = useMembers();
   const teams = useTeamsStore((s) => s.teams);
+  const allAssignments = useClassAssignments((s) => s.assignments);
   const [query, setQuery] = useState("");
   const [roleId, setRoleId] = useState("all");
   const [teamId, setTeamId] = useState("all");
@@ -28,8 +30,8 @@ export default function DirectoryPage() {
       if (roleId !== "all" && !m.roleIds.includes(roleId)) return false;
       if (teamId !== "all" && !m.teamIds.includes(teamId) && !teams.find((t) => t.id === teamId)?.memberIds.includes(m.id)) return false;
       if (classId !== "all") {
-        const assigned = assignmentsForMember(m.id).some(
-          (a) => a.classId === classId
+        const assigned = allAssignments.some(
+          (a) => a.memberId === m.id && a.classId === classId
         );
         if (!assigned) return false;
       }
@@ -38,7 +40,8 @@ export default function DirectoryPage() {
       const teamNames = teams
         .filter((t) => t.memberIds.includes(m.id) || m.teamIds.includes(t.id))
         .map((t) => t.name);
-      const classNames = assignmentsForMember(m.id)
+      const classNames = allAssignments
+        .filter((a) => a.memberId === m.id)
         .map((a) => CLASSES.find((c) => c.id === a.classId)?.name)
         .filter(Boolean) as string[];
 
@@ -48,7 +51,7 @@ export default function DirectoryPage() {
         ...classNames,
       ]);
     }).sort((a, b) => a.fullName.localeCompare(b.fullName));
-  }, [members, query, roleId, teamId, classId, status, teams]);
+  }, [members, query, roleId, teamId, classId, status, teams, allAssignments]);
 
   return (
     <div>

@@ -17,19 +17,29 @@ import { useMembers } from "@/lib/members/MembersProvider";
 import { hasPermission, ALL_ROLES, displayName } from "@/lib/permissions";
 import {
   CLASSES,
-  CLASS_ASSIGNMENTS,
   TEAMS,
-  membersForClass,
 } from "@/data/seed";
+import { useClassAssignments } from "@/lib/classes/assignmentsStore";
 import { PageHeader, SectionLabel } from "@/components/ui/PageHeader";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Avatar } from "@/components/ui/Avatar";
 import { RoleBadge, StatusDot } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import type { Member, MemberStatus } from "@/types";
+import type { ClassRoleKey, Member, MemberStatus } from "@/types";
 
 type AdminTab = "overview" | "members" | "roles" | "staffing" | "sessions";
+
+const CLASS_ROLES: { value: ClassRoleKey; label: string }[] = [
+  { value: "lead_teacher", label: "Lead teacher" },
+  { value: "teacher", label: "Teacher" },
+  { value: "senior_mentor", label: "Senior mentor" },
+  { value: "mentor", label: "Mentor" },
+  { value: "helper", label: "Helper" },
+  { value: "floater", label: "Floater" },
+  { value: "shadow", label: "Shadow" },
+  { value: "substitute", label: "Substitute" },
+];
 
 type EditableFields = {
   fullName: string;
@@ -66,6 +76,9 @@ function fieldsFromMember(m: Member): EditableFields {
 export default function AdminPage() {
   const { member } = useAuth();
   const { members, adminPatchMember } = useMembers();
+  const allAssignments = useClassAssignments((s) => s.assignments);
+  const addAssignment = useClassAssignments((s) => s.addAssignment);
+  const removeAssignment = useClassAssignments((s) => s.removeAssignment);
   const router = useRouter();
   const [tab, setTab] = useState<AdminTab>("overview");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -74,16 +87,19 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [assignClassId, setAssignClassId] = useState(CLASSES[0]?.id ?? "");
+  const [assignRole, setAssignRole] = useState<ClassRoleKey>("mentor");
+  const [staffAddMemberId, setStaffAddMemberId] = useState("");
+  const [staffAddRole, setStaffAddRole] = useState<ClassRoleKey>("mentor");
+  const [staffClassId, setStaffClassId] = useState<string | null>(null);
 
   const staffingGaps = useMemo(() => {
     return CLASSES.map((cls) => {
-      const team = membersForClass(cls.id);
+      const team = allAssignments.filter((a) => a.classId === cls.id);
       const hasLead = team.some(
-        (t) =>
-          t.assignment.classRole === "lead_teacher" &&
-          t.assignment.status === "confirmed"
+        (t) => t.classRole === "lead_teacher" && t.status === "confirmed"
       );
-      const confirmed = team.filter((t) => t.assignment.status === "confirmed");
+      const confirmed = team.filter((t) => t.status === "confirmed");
       return {
         cls,
         teamSize: team.length,
@@ -92,7 +108,7 @@ export default function AdminPage() {
         gap: !hasLead || confirmed.length < 2,
       };
     }).filter((g) => g.gap);
-  }, []);
+  }, [allAssignments]);
 
   const canAdmin = Boolean(
     member && hasPermission(member.roleIds, "admin:access")
@@ -522,31 +538,76 @@ export default function AdminPage() {
                   <div className="mt-6">
                     <SectionLabel>Class assignments</SectionLabel>
                     <div className="space-y-2">
-                      {CLASS_ASSIGNMENTS.filter(
-                        (a) => a.memberId === selected.id
-                      ).map((a) => {
-                        const cls = CLASSES.find((c) => c.id === a.classId);
-                        return (
-                          <div
-                            key={a.id}
-                            className="glass-inset flex items-center justify-between rounded-xl px-3 py-2.5"
-                          >
-                            <div>
-                              <p className="text-sm">{cls?.name}</p>
-                              <p className="text-[11px] capitalize text-tertiary">
-                                {a.classRole.replace(/_/g, " ")} · {a.status}
-                              </p>
+                      {allAssignments
+                        .filter((a) => a.memberId === selected.id)
+                        .map((a) => {
+                          const cls = CLASSES.find((c) => c.id === a.classId);
+                          return (
+                            <div
+                              key={a.id}
+                              className="glass-inset flex items-center justify-between gap-2 rounded-xl px-3 py-2.5"
+                            >
+                              <div className="min-w-0">
+                                <p className="text-sm">{cls?.name}</p>
+                                <p className="text-[11px] capitalize text-tertiary">
+                                  {a.classRole.replace(/_/g, " ")} · {a.status}
+                                </p>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => removeAssignment(a.id)}
+                              >
+                                Remove
+                              </Button>
                             </div>
-                          </div>
-                        );
-                      })}
-                      {CLASS_ASSIGNMENTS.filter(
-                        (a) => a.memberId === selected.id
-                      ).length === 0 && (
+                          );
+                        })}
+                      {allAssignments.filter((a) => a.memberId === selected.id)
+                        .length === 0 && (
                         <p className="text-sm text-secondary">
                           No class assignments
                         </p>
                       )}
+                    </div>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto_auto]">
+                      <select
+                        value={assignClassId}
+                        onChange={(e) => setAssignClassId(e.target.value)}
+                        className="input-field appearance-none"
+                      >
+                        {CLASSES.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.sessionLabel} · {c.name}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={assignRole}
+                        onChange={(e) =>
+                          setAssignRole(e.target.value as ClassRoleKey)
+                        }
+                        className="input-field appearance-none"
+                      >
+                        {CLASS_ROLES.map((r) => (
+                          <option key={r.value} value={r.value}>
+                            {r.label}
+                          </option>
+                        ))}
+                      </select>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          if (!assignClassId) return;
+                          addAssignment({
+                            classId: assignClassId,
+                            memberId: selected.id,
+                            classRole: assignRole,
+                          });
+                        }}
+                      >
+                        Add
+                      </Button>
                     </div>
                   </div>
                 </GlassCard>
@@ -593,36 +654,128 @@ export default function AdminPage() {
       {tab === "staffing" && (
         <div className="space-y-3">
           {CLASSES.map((cls) => {
-            const team = membersForClass(cls.id);
+            const assigned = allAssignments.filter((a) => a.classId === cls.id);
+            const addingHere = staffClassId === cls.id;
             return (
               <GlassCard key={cls.id}>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h3 className="font-display text-lg">{cls.name}</h3>
                     <p className="mt-1 text-xs text-secondary">
-                      {cls.dayOfWeek} · {cls.sessionLabel} · {team.length}{" "}
+                      {cls.dayOfWeek} · {cls.sessionLabel} · {assigned.length}{" "}
                       assigned
                     </p>
                   </div>
-                  <Link href={`/classes/${cls.id}`}>
-                    <Button variant="ghost" size="sm">
-                      Open class
-                    </Button>
-                  </Link>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {team.map(({ member: m, assignment }) => (
-                    <div
-                      key={m.id}
-                      className="glass-inset inline-flex items-center gap-2 rounded-full py-1 pl-1 pr-3"
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() =>
+                        setStaffClassId(addingHere ? null : cls.id)
+                      }
                     >
-                      <Avatar name={displayName(m)} src={m.pfpUrl} size="sm" />
-                      <span className="text-xs">
-                        {displayName(m)} ·{" "}
-                        {assignment.classRole.replace(/_/g, " ")}
-                      </span>
-                    </div>
-                  ))}
+                      {addingHere ? "Cancel" : "Add volunteer"}
+                    </Button>
+                    <Link href={`/classes/${cls.id}`}>
+                      <Button variant="ghost" size="sm">
+                        Open class
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+
+                {addingHere && (
+                  <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto_auto]">
+                    <select
+                      value={staffAddMemberId}
+                      onChange={(e) => setStaffAddMemberId(e.target.value)}
+                      className="input-field appearance-none"
+                    >
+                      <option value="">Select volunteer…</option>
+                      {members
+                        .filter(
+                          (m) =>
+                            !assigned.some((a) => a.memberId === m.id) &&
+                            m.status === "active"
+                        )
+                        .sort((a, b) => a.fullName.localeCompare(b.fullName))
+                        .map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {displayName(m)}
+                          </option>
+                        ))}
+                    </select>
+                    <select
+                      value={staffAddRole}
+                      onChange={(e) =>
+                        setStaffAddRole(e.target.value as ClassRoleKey)
+                      }
+                      className="input-field appearance-none"
+                    >
+                      {CLASS_ROLES.map((r) => (
+                        <option key={r.value} value={r.value}>
+                          {r.label}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      size="sm"
+                      disabled={!staffAddMemberId}
+                      onClick={() => {
+                        addAssignment({
+                          classId: cls.id,
+                          memberId: staffAddMemberId,
+                          classRole: staffAddRole,
+                        });
+                        setStaffAddMemberId("");
+                        setStaffClassId(null);
+                      }}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                )}
+
+                <div className="mt-4 flex flex-col gap-2">
+                  {assigned.length === 0 ? (
+                    <p className="text-sm text-secondary">No volunteers yet</p>
+                  ) : (
+                    assigned.map((assignment) => {
+                      const m = members.find(
+                        (x) => x.id === assignment.memberId
+                      );
+                      if (!m) return null;
+                      return (
+                        <div
+                          key={assignment.id}
+                          className="glass-inset flex items-center justify-between gap-2 rounded-xl px-3 py-2"
+                        >
+                          <div className="flex min-w-0 items-center gap-2">
+                            <Avatar
+                              name={displayName(m)}
+                              src={m.pfpUrl}
+                              size="sm"
+                            />
+                            <div className="min-w-0">
+                              <p className="truncate text-sm">
+                                {displayName(m)}
+                              </p>
+                              <p className="text-[11px] capitalize text-tertiary">
+                                {assignment.classRole.replace(/_/g, " ")}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removeAssignment(assignment.id)}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </GlassCard>
             );
@@ -634,7 +787,7 @@ export default function AdminPage() {
         <GlassCard>
           <p className="text-sm text-secondary">
             Jan 12 – May 30, 2026 · {CLASSES.length} classes ·{" "}
-            {CLASS_ASSIGNMENTS.length} assignments · {TEAMS.length} teams
+            {allAssignments.length} assignments · {TEAMS.length} teams
           </p>
         </GlassCard>
       )}

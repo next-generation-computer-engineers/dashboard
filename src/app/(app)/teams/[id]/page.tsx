@@ -33,7 +33,6 @@ import { useTeamsStore } from "@/lib/teams/store";
 import { useJoinRequests } from "@/lib/teams/joinRequests";
 import {
   isTeamMember,
-  ledByLabel,
   teamIdsForMember,
 } from "@/lib/teams/membership";
 import {
@@ -222,9 +221,6 @@ export default function TeamDetailPage() {
           <p className="mt-2 text-sm text-secondary">
             You’re not on this team, so its members and events are private.
           </p>
-          <p className="mt-1 text-xs text-tertiary">
-            {ledByLabel(currentTeam, members)}
-          </p>
           {member && (
             <div className="mt-4">
               {myPendingRequest ? (
@@ -272,9 +268,6 @@ export default function TeamDetailPage() {
           </div>
           <p className="mt-2 max-w-lg text-sm text-secondary">
             {team.description}
-          </p>
-          <p className="mt-2 text-xs text-tertiary">
-            {ledByLabel(currentTeam, members)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

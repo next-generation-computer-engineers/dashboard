@@ -13,9 +13,10 @@ import {
   Check,
 } from "lucide-react";
 import { useState } from "react";
-import { CLASSES, assignmentsForMember } from "@/data/seed";
+import { CLASSES } from "@/data/seed";
 import { useMembers } from "@/lib/members/MembersProvider";
 import { useTeamsStore } from "@/lib/teams/store";
+import { useClassAssignments } from "@/lib/classes/assignmentsStore";
 import { displayName, getRolesByIds } from "@/lib/permissions";
 import { formatPhone } from "@/lib/utils";
 import { Avatar } from "@/components/ui/Avatar";
@@ -28,6 +29,7 @@ export default function MemberProfilePage() {
   const params = useParams<{ id: string }>();
   const { getById } = useMembers();
   const allTeams = useTeamsStore((s) => s.teams);
+  const allAssignments = useClassAssignments((s) => s.assignments);
   const member = getById(params.id);
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -50,10 +52,12 @@ export default function MemberProfilePage() {
   const teams = allTeams.filter(
     (t) => t.memberIds.includes(member.id) || member.teamIds.includes(t.id)
   );
-  const assignments = assignmentsForMember(member.id).map((a) => ({
-    ...a,
-    cls: CLASSES.find((c) => c.id === a.classId),
-  }));
+  const assignments = allAssignments
+    .filter((a) => a.memberId === member.id)
+    .map((a) => ({
+      ...a,
+      cls: CLASSES.find((c) => c.id === a.classId),
+    }));
 
   async function copy(value: string, key: string) {
     await navigator.clipboard.writeText(value);

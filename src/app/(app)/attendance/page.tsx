@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { CLASSES, assignmentsForMember } from "@/data/seed";
+import { CLASSES } from "@/data/seed";
+import { useClassAssignments } from "@/lib/classes/assignmentsStore";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { GlassCard } from "@/components/ui/GlassCard";
 
@@ -13,14 +14,12 @@ import { GlassCard } from "@/components/ui/GlassCard";
  */
 export default function AttendanceLauncherPage() {
   const { member } = useAuth();
+  const allAssignments = useClassAssignments((s) => s.assignments);
   if (!member) return null;
 
-  const mine = assignmentsForMember(member.id);
+  const mine = allAssignments.filter((a) => a.memberId === member.id);
   const myIds = new Set(mine.map((a) => a.classId));
-  const list =
-    mine.length > 0
-      ? CLASSES.filter((c) => myIds.has(c.id))
-      : CLASSES.filter((c) => c.status === "active");
+  const list = CLASSES.filter((c) => myIds.has(c.id));
 
   return (
     <div>
@@ -30,33 +29,44 @@ export default function AttendanceLauncherPage() {
         description="Opens the Google Sheet for each class — same sheets linked from the master spreadsheet."
       />
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {list.map((cls) => (
-          <GlassCard key={cls.id} className="!p-4">
-            <p className="text-[11px] uppercase tracking-wider text-tertiary">
-              {cls.sessionLabel} · {cls.dayOfWeek}
-            </p>
-            <p className="mt-1 font-display text-xl tracking-tight">{cls.name}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <a
-                href={cls.attendanceSheetUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-soft)] px-3.5 py-2 text-sm text-[var(--accent)] ring-1 ring-[rgba(201,169,110,0.25)] transition hover:bg-[rgba(201,169,110,0.22)]"
-              >
-                Open attendance sheet
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-              <Link
-                href={`/classes/${cls.id}`}
-                className="inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm text-secondary glass-panel hover:text-[var(--text-primary)]"
-              >
-                Class day screen
-              </Link>
-            </div>
-          </GlassCard>
-        ))}
-      </div>
+      {list.length === 0 ? (
+        <GlassCard className="py-10 text-center">
+          <p className="text-sm text-secondary">
+            No class assignments yet. An admin can add you under Admin →
+            Staffing.
+          </p>
+        </GlassCard>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {list.map((cls) => (
+            <GlassCard key={cls.id} className="!p-4">
+              <p className="text-[11px] uppercase tracking-wider text-tertiary">
+                {cls.sessionLabel} · {cls.dayOfWeek}
+              </p>
+              <p className="mt-1 font-display text-xl tracking-tight">
+                {cls.name}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a
+                  href={cls.attendanceSheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-soft)] px-3.5 py-2 text-sm text-[var(--accent)] ring-1 ring-[rgba(201,169,110,0.25)] transition hover:bg-[rgba(201,169,110,0.22)]"
+                >
+                  Open attendance sheet
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+                <Link
+                  href={`/classes/${cls.id}`}
+                  className="glass-panel inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm text-secondary hover:text-[var(--text-primary)]"
+                >
+                  Class day screen
+                </Link>
+              </div>
+            </GlassCard>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

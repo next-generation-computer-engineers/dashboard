@@ -31,6 +31,14 @@ function durationMinutes(startsAt?: string, endsAt?: string) {
   return "60";
 }
 
+/** Build ISO from date+time inputs in the user's local timezone (avoids UTC shift bugs). */
+function localDateTimeToIso(date: string, time: string) {
+  const [y, m, d] = date.split("-").map(Number);
+  const [hh, mm] = time.split(":").map(Number);
+  if (!y || !m || !d || Number.isNaN(hh) || Number.isNaN(mm)) return null;
+  return new Date(y, m - 1, d, hh, mm, 0, 0).toISOString();
+}
+
 export function EventForm({
   mode,
   teamId,
@@ -76,11 +84,11 @@ export function EventForm({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
-    const startsAt = new Date(`${date}T${time}:00`);
-    if (Number.isNaN(startsAt.getTime())) return;
+    const startsAt = localDateTimeToIso(date, time);
+    if (!startsAt) return;
     const endsAt = new Date(
-      startsAt.getTime() + Number(duration) * 60 * 1000
-    );
+      new Date(startsAt).getTime() + Number(duration) * 60 * 1000
+    ).toISOString();
 
     const mats: TeamEventMaterial[] = materials
       .filter((m) => m.title.trim() && m.url.trim())
@@ -95,8 +103,8 @@ export function EventForm({
       teamId,
       title,
       description,
-      startsAt: startsAt.toISOString(),
-      endsAt: endsAt.toISOString(),
+      startsAt,
+      endsAt,
       zoomLink,
       materials: mats,
       recurringUntil: recurring && recurringUntil ? recurringUntil : undefined,

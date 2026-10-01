@@ -17,7 +17,6 @@ import {
 import { useTeamsStore } from "@/lib/teams/store";
 import {
   isTeamMember,
-  ledByLabel,
   teamIdsForMember,
 } from "@/lib/teams/membership";
 
@@ -188,11 +187,10 @@ export default function TeamsPage() {
                       {team.description}
                     </p>
                     <p className="mt-2 text-xs text-tertiary">
-                      {ledByLabel(team, members)}
                       {upcoming > 0
-                        ? ` · ${upcoming} event${upcoming === 1 ? "" : "s"}`
+                        ? `${upcoming} event${upcoming === 1 ? "" : "s"} · `
                         : ""}
-                      {` · ${teamMembers.length} member${teamMembers.length === 1 ? "" : "s"}`}
+                      {`${teamMembers.length} member${teamMembers.length === 1 ? "" : "s"}`}
                     </p>
                   </div>
                   <div className="flex -space-x-2">

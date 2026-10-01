@@ -81,24 +81,28 @@ export function filterEventsForTeams(
     );
 }
 
-/** Meetings page: all upcoming + active recurring (not limited to today), sorted by next occurrence. */
+/** Meetings page: upcoming one-offs + active recurring, sorted by next occurrence. */
 export function filterEventsForMeetingsPage(
   events: TeamEvent[],
   teamIds: string[],
   nextOccurrence: (event: TeamEvent) => string
 ): TeamEvent[] {
   const setIds = new Set(teamIds);
-  const now = Date.now() - 2 * 60 * 60 * 1000;
+  const now = Date.now() - 12 * 60 * 60 * 1000; // keep same-day events visible
   return events
     .filter((e) => setIds.has(e.teamId))
     .filter((e) => {
       if (e.recurringUntil) {
-        return new Date(e.recurringUntil + "T23:59:59").getTime() >= now;
+        const until = new Date(`${e.recurringUntil}T23:59:59`).getTime();
+        return !Number.isNaN(until) && until >= now;
       }
+      // Prefer start time so future meetings always show even if duration looks off
+      const start = new Date(e.startsAt).getTime();
+      if (!Number.isNaN(start) && start >= now) return true;
       const end = e.endsAt
         ? new Date(e.endsAt).getTime()
-        : new Date(e.startsAt).getTime() + 2 * 60 * 60 * 1000;
-      return end >= now;
+        : start + 2 * 60 * 60 * 1000;
+      return !Number.isNaN(end) && end >= now;
     })
     .sort(
       (a, b) =>

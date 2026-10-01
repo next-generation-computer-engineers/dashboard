@@ -45,22 +45,26 @@ export default function MeetingsPage() {
     [member, teams]
   );
 
-  /** Teams shown in the filter: membership + any you lead */
+  const isAdmin = Boolean(member?.roleIds.includes("role_admin"));
+
+  /** Teams shown in the filter: membership + lead teams (admins → all) */
   const filterableTeams = useMemo(() => {
+    if (isAdmin) {
+      return [...teams].sort((a, b) => a.name.localeCompare(b.name));
+    }
     const ids = new Set([...myTeamIds, ...leadTeams.map((t) => t.id)]);
     return teams
       .filter((t) => ids.has(t.id))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [teams, myTeamIds, leadTeams]);
+  }, [teams, myTeamIds, leadTeams, isAdmin]);
 
   const visibleTeamIds = useMemo(() => {
-    if (filterTeamId === "all") {
-      return Array.from(
-        new Set([...myTeamIds, ...leadTeams.map((t) => t.id)])
-      );
-    }
-    return [filterTeamId];
-  }, [filterTeamId, myTeamIds, leadTeams]);
+    if (filterTeamId !== "all") return [filterTeamId];
+    if (isAdmin) return teams.map((t) => t.id);
+    return Array.from(
+      new Set([...myTeamIds, ...leadTeams.map((t) => t.id)])
+    );
+  }, [filterTeamId, myTeamIds, leadTeams, isAdmin, teams]);
 
   const events = useMemo(
     () =>

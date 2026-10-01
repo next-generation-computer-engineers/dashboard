@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useMembers } from "@/lib/members/MembersProvider";
-import { assignmentsForMember, getClass } from "@/data/seed";
+import { getClass } from "@/data/seed";
+import { useClassAssignments } from "@/lib/classes/assignmentsStore";
 import { displayName } from "@/lib/permissions";
 import { PageHeader, SectionLabel } from "@/components/ui/PageHeader";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -46,6 +47,7 @@ export default function DashboardPage() {
   const allEvents = useTeamEvents((s) => s.events);
   const teams = useTeamsStore((s) => s.teams);
   const addMember = useTeamsStore((s) => s.addMember);
+  const allAssignments = useClassAssignments((s) => s.assignments);
   const allRequests = useJoinRequests((s) => s.requests);
   const approveRequest = useJoinRequests((s) => s.approve);
   const denyRequest = useJoinRequests((s) => s.deny);
@@ -116,7 +118,7 @@ export default function DashboardPage() {
   const today = new Date();
   const dayName = todayDayName(today);
 
-  const myAssignments = assignmentsForMember(member.id);
+  const myAssignments = allAssignments.filter((a) => a.memberId === member.id);
   const todaysClasses = myAssignments
     .map((a) => ({ assignment: a, cls: getClass(a.classId) }))
     .filter(
