@@ -113,8 +113,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
         style={{ pointerEvents: "auto" }}
       >
-        <div className="flex h-[var(--topbar-height)] items-center justify-between gap-1 px-3">
-          <BrandLogo height={collapsed ? 22 : 28} />
+        <div className="flex h-[var(--topbar-height)] items-center justify-between gap-1 overflow-visible px-3">
+          <BrandLogo height={collapsed ? 24 : 30} />
           <button
             onClick={() => setCollapsed((c) => !c)}
             className="shrink-0 rounded p-1 text-tertiary hover:text-secondary"
@@ -163,8 +163,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <div className="fixed left-0 right-0 top-0 z-40 flex h-12 items-center justify-between border-b border-[var(--border)] bg-[var(--bg-base)] px-4 md:hidden">
-        <BrandLogo height={26} />
+      <div className="fixed left-0 right-0 top-0 z-40 flex h-12 items-center justify-between overflow-visible border-b border-[var(--border)] bg-[var(--bg-base)] px-4 md:hidden">
+        <BrandLogo height={28} />
         <button
           onClick={() => setMobileOpen(true)}
           className="p-1.5 text-secondary"
@@ -181,8 +181,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onClick={() => setMobileOpen(false)}
           />
           <div className="absolute left-0 top-0 flex h-full w-[240px] flex-col border-r border-[var(--border)] bg-[var(--bg-base)]">
-            <div className="flex h-12 items-center justify-between px-3">
-              <BrandLogo height={26} />
+            <div className="flex h-12 items-center justify-between overflow-visible px-3">
+              <BrandLogo height={28} />
               <button
                 onClick={() => setMobileOpen(false)}
                 className="p-1.5 text-secondary"

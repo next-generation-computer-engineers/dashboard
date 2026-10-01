@@ -4,7 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-/** CENG wordmark — 1024×411, keep natural aspect ratio (never square-crop). */
+/** Intrinsic size of padded logo assets in /public */
+const LOGO_W = 1024;
+const LOGO_H = 410;
+
+/**
+ * CENG wordmark — theme-aware (black mark in light, blue mark in dark).
+ * Padded assets + object-contain so the silhouette isn’t cropped.
+ */
 export function BrandLogo({
   href = "/dashboard",
   className,
@@ -16,20 +23,36 @@ export function BrandLogo({
   height?: number;
   showWord?: boolean;
 }) {
-  const width = Math.round((height * 1024) / 411);
+  const width = Math.round((height * LOGO_W) / LOGO_H);
   const mark = (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <Image
-        src="/ceng-logo.jpg"
-        alt="CENG"
-        width={1024}
-        height={411}
-        priority
-        quality={95}
-        sizes={`${width}px`}
-        className="rounded-sm"
-        style={{ height, width: "auto", maxWidth: width }}
-      />
+      <span
+        className="relative inline-block overflow-visible"
+        style={{ height, width }}
+      >
+        {/* Light mode: black mark on transparent */}
+        <Image
+          src="/ceng-logo-light.png"
+          alt="CENG"
+          width={LOGO_W}
+          height={LOGO_H}
+          priority
+          quality={95}
+          sizes={`${width}px`}
+          className="hidden h-full w-full object-contain object-left [[data-theme=light]_&]:block"
+        />
+        {/* Dark mode: blue mark on transparent */}
+        <Image
+          src="/ceng-logo-dark.png"
+          alt="CENG"
+          width={LOGO_W}
+          height={LOGO_H}
+          priority
+          quality={95}
+          sizes={`${width}px`}
+          className="block h-full w-full object-contain object-left [[data-theme=light]_&]:hidden"
+        />
+      </span>
       {showWord && (
         <span className="text-sm font-medium tracking-tight">CENG</span>
       )}
@@ -38,7 +61,7 @@ export function BrandLogo({
 
   if (!href) return mark;
   return (
-    <Link href={href} className="inline-flex items-center">
+    <Link href={href} className="inline-flex shrink-0 items-center overflow-visible">
       {mark}
     </Link>
   );

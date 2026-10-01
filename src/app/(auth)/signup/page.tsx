@@ -46,6 +46,24 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center px-4 py-12 bg-[var(--bg-base)]">
       <div className="w-full max-w-[360px]">
         <div className="mb-8">
+          <div className="mb-4 overflow-visible">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/ceng-logo-light.png"
+              alt="CENG"
+              width={1024}
+              height={410}
+              className="hidden h-11 w-auto object-contain object-left [[data-theme=light]_&]:block"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/ceng-logo-dark.png"
+              alt="CENG"
+              width={1024}
+              height={410}
+              className="block h-11 w-auto object-contain object-left [[data-theme=light]_&]:hidden"
+            />
+          </div>
           <h1 className="text-xl font-medium tracking-tight">Join CENG</h1>
           <p className="mt-1 text-sm text-secondary">
             Create an account with your volunteer email
