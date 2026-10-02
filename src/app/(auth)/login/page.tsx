@@ -44,15 +44,15 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-12 bg-[var(--bg-base)]">
       <div className="w-full max-w-[360px]">
-        <div className="mb-8">
-          <div className="mb-5 overflow-visible">
+        <div className="mb-8 text-center">
+          <div className="mb-5 flex justify-center overflow-visible">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/ceng-logo-light.png"
               alt="CENG"
               width={1024}
               height={410}
-              className="hidden h-11 w-auto object-contain object-left [[data-theme=light]_&]:block"
+              className="hidden h-16 w-auto object-contain [[data-theme=light]_&]:block"
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -60,10 +60,12 @@ export default function LoginPage() {
               alt="CENG"
               width={1024}
               height={410}
-              className="block h-11 w-auto object-contain object-left [[data-theme=light]_&]:hidden"
+              className="block h-16 w-auto object-contain [[data-theme=light]_&]:hidden"
             />
           </div>
-          <p className="text-sm text-secondary">Sign in to the volunteer dashboard</p>
+          <p className="text-sm text-secondary">
+            Sign in to the volunteer dashboard
+          </p>
         </div>
 
         {!firebaseReady && (
