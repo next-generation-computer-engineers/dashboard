@@ -127,8 +127,8 @@ export default function ProfilePage() {
   return (
     <div>
       <PageHeader
-        eyebrow="You"
-        title="Your profile"
+        compact
+        title="Profile"
         description="How you appear in the CENG directory. Admins manage roles and assignments."
         actions={
           editing ? (

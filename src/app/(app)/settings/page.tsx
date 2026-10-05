@@ -70,6 +70,7 @@ export default function SettingsPage() {
   return (
     <div className="max-w-lg space-y-6">
       <PageHeader
+        compact
         title="Settings"
         description="Appearance and daily tools."
       />

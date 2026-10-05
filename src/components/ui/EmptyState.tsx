@@ -16,15 +16,17 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "glass-panel flex flex-col items-center justify-center rounded-[var(--radius-lg)] px-6 py-16 text-center",
+        "flex flex-col items-start justify-center rounded-[var(--radius-md)] border border-dashed border-[var(--border)] bg-[var(--surface)] px-5 py-8",
         className
       )}
     >
-      <p className="font-display text-lg text-[var(--text-primary)]">{title}</p>
+      <p className="text-sm font-medium text-[var(--text-primary)]">{title}</p>
       {description && (
-        <p className="mt-2 max-w-sm text-sm text-secondary">{description}</p>
+        <p className="mt-1 max-w-md text-[13px] leading-relaxed text-secondary">
+          {description}
+        </p>
       )}
-      {action && <div className="mt-5">{action}</div>}
+      {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }
@@ -32,9 +34,31 @@ export function EmptyState({
 export function LoadingBlock({ className }: { className?: string }) {
   return (
     <div className={cn("space-y-3", className)}>
-      <div className="skeleton h-8 w-48" />
-      <div className="skeleton h-24 w-full" />
-      <div className="skeleton h-24 w-full" />
+      <div className="skeleton h-7 w-40" />
+      <div className="skeleton h-28 w-full" />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="skeleton h-24 w-full" />
+        <div className="skeleton h-24 w-full" />
+      </div>
+    </div>
+  );
+}
+
+export function DashboardSkeleton() {
+  return (
+    <div className="space-y-5">
+      <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+        <div className="skeleton h-40 w-full rounded-[var(--radius-md)]" />
+        <div className="skeleton h-40 w-full rounded-[var(--radius-md)]" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="skeleton h-36 w-full rounded-[var(--radius-md)]" />
+        <div className="skeleton h-36 w-full rounded-[var(--radius-md)]" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="skeleton h-28 w-full rounded-[var(--radius-md)]" />
+        <div className="skeleton h-28 w-full rounded-[var(--radius-md)]" />
+      </div>
     </div>
   );
 }

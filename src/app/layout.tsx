@@ -22,12 +22,13 @@ const themeInitScript = `
 (function(){
   try {
     var t = localStorage.getItem('ceng_theme');
-    if (t !== 'light' && t !== 'dark') {
-      t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-    }
+    if (t !== 'light' && t !== 'dark') t = 'light';
     document.documentElement.dataset.theme = t;
     document.documentElement.style.colorScheme = t;
-  } catch (e) {}
+  } catch (e) {
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.style.colorScheme = 'light';
+  }
 })();
 `;
 

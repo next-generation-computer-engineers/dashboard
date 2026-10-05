@@ -228,9 +228,9 @@ export default function AdminPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Admin"
-        title="Control center"
-        description="Member management, roles, class staffing, and session setup."
+        compact
+        title="Admin tools"
+        description="Members, roles, class staffing, and session setup."
       />
 
       <div className="mb-6 flex gap-1 overflow-x-auto rounded-2xl glass-inset p-1">

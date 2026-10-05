@@ -32,7 +32,7 @@ export function StatusDot({
 }) {
   const colors: Record<string, string> = {
     active: "bg-[var(--success)]",
-    inactive: "bg-white/25",
+    inactive: "bg-[var(--text-tertiary)]",
     pending: "bg-[var(--warning)]",
     alumni: "bg-[var(--info)]",
   };
@@ -41,7 +41,7 @@ export function StatusDot({
       <span
         className={cn(
           "h-1.5 w-1.5 rounded-full",
-          colors[status] ?? "bg-white/30"
+          colors[status] ?? "bg-[var(--text-tertiary)]"
         )}
       />
       {label ?? status}

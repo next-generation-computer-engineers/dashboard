@@ -56,6 +56,7 @@ export default function DirectoryPage() {
   return (
     <div>
       <PageHeader
+        compact
         title="Directory"
         description={
           source === "firestore"

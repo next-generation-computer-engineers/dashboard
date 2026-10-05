@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { GlassCard } from "@/components/ui/GlassCard";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { TeamEventCard } from "@/components/events/TeamEventCard";
 import { EventForm } from "@/components/events/EventForm";
 import {
@@ -87,10 +87,11 @@ export default function MeetingsPage() {
     "";
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <PageHeader
-        title="Meetings"
-        description="All upcoming and recurring meetings for your teams — not just today."
+        compact
+        title="Calendar"
+        description="Classes, meetings, and team events — filter by team or create new ones if you lead."
         actions={
           leadTeams.length > 0 ? (
             <Button
@@ -192,31 +193,33 @@ export default function MeetingsPage() {
       )}
 
       {events.length === 0 && !creating ? (
-        <GlassCard className="py-10 text-center">
-          <p className="text-sm text-secondary">
-            {filterTeamId === "all"
-              ? "No upcoming or recurring meetings."
-              : "No meetings for this team."}
-          </p>
-          {leadTeams.length > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                setCreateTeamId(
-                  filterTeamId !== "all" &&
-                    leadTeams.some((t) => t.id === filterTeamId)
-                    ? filterTeamId
-                    : leadTeams[0].id
-                );
-                setCreating(true);
-              }}
-              className="mt-3 text-sm underline underline-offset-2"
-            >
-              Create one
-              {leadTeams[0] ? ` for ${leadTeams[0].name}` : ""}
-            </button>
-          )}
-        </GlassCard>
+        <EmptyState
+          title={
+            filterTeamId === "all"
+              ? "No upcoming meetings"
+              : "No meetings for this team"
+          }
+          description="When a lead schedules an event for your team, it will show here with Zoom and materials."
+          action={
+            leadTeams.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setCreateTeamId(
+                    filterTeamId !== "all" &&
+                      leadTeams.some((t) => t.id === filterTeamId)
+                      ? filterTeamId
+                      : leadTeams[0].id
+                  );
+                  setCreating(true);
+                }}
+                className="text-[13px] font-medium text-[var(--accent)] hover:underline"
+              >
+                Create event
+              </button>
+            ) : undefined
+          }
+        />
       ) : (
         <div className="flex flex-col gap-3">
           {events.map((event) => (
@@ -250,13 +253,13 @@ export default function MeetingsPage() {
         </div>
       )}
 
-      <p className="mt-6 text-sm text-secondary">
+      <p className="mt-6 text-[13px] text-secondary">
         You can also manage events from{" "}
         <Link
           href="/teams"
-          className="text-[var(--text-primary)] underline underline-offset-2"
+          className="font-medium text-[var(--accent)] hover:underline"
         >
-          Teams
+          Opportunities
         </Link>
         .
       </p>

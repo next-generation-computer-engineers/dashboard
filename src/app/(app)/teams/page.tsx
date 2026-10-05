@@ -70,11 +70,12 @@ export default function TeamsPage() {
   return (
     <div>
       <PageHeader
-        title="Teams"
+        compact
+        title="Opportunities"
         description={
           canAdmin
-            ? "Your org teams. Admins see every team to create, assign leads, and manage members."
-            : "Teams you’re on. Open one for members, events, and lead tools."
+            ? "Browse teams you can join, or create and manage org teams as an admin."
+            : "Teams and roles you can join. Open one to request membership or see events."
         }
         actions={
           canAdmin ? (

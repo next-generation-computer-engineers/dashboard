@@ -110,7 +110,7 @@ export function TeamEventCard({
             className="inline-flex h-9 items-center gap-1.5 rounded-[var(--radius-sm)] bg-[var(--accent)] px-3 text-sm font-medium text-[var(--text-inverse)] hover:opacity-90"
           >
             <Video className="h-3.5 w-3.5" />
-            Join
+            Join Zoom
           </a>
         )}
         <a
@@ -120,7 +120,7 @@ export function TeamEventCard({
           className="inline-flex h-9 items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] px-3 text-sm hover:bg-[var(--surface-hover)]"
         >
           <CalendarPlus className="h-3.5 w-3.5" />
-          Google Calendar
+          Add to calendar
         </a>
       </div>
 

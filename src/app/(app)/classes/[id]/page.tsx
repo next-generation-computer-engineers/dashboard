@@ -49,19 +49,19 @@ export default function ClassDayPage() {
         href="/classes"
         className="mb-8 inline-flex items-center gap-1.5 text-sm text-secondary hover:text-[var(--text-primary)]"
       >
-        <ArrowLeft className="h-3.5 w-3.5" /> Classes
+        <ArrowLeft className="h-3.5 w-3.5" /> My Classes
       </Link>
 
-      <div className="mb-8">
-        <p className="text-xs text-tertiary">
+      <div className="mb-6">
+        <p className="text-[11px] font-medium uppercase tracking-wider text-tertiary">
           {cls.sessionLabel} · {cls.dayOfWeek}
         </p>
-        <h1 className="mt-1 text-2xl font-medium tracking-tight">
+        <h1 className="mt-1 text-xl font-medium tracking-tight md:text-2xl">
           {cls.name}
         </h1>
-        <p className="mt-1 text-sm text-secondary">{cls.dateRange}</p>
+        <p className="mt-1 text-[13px] text-secondary">{cls.dateRange}</p>
         {cls.studentCountLabel && (
-          <p className="mt-1 text-xs text-tertiary">{cls.studentCountLabel}</p>
+          <p className="mt-1 text-[12px] text-tertiary">{cls.studentCountLabel}</p>
         )}
       </div>
 
