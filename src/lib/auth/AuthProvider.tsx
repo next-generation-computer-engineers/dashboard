@@ -138,58 +138,83 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsub();
   }, [firebaseReady]);
 
-  // Link once per signed-in user after members are ready — not on every members refresh
+  // Link once per signed-in uid after members are ready.
+  // Do NOT depend on linkAuthUser — it changes when setMembers runs and would
+  // cancel this effect mid-await, leaving Loading… forever.
   useEffect(() => {
     let cancelled = false;
 
     async function resolve() {
       if (!user) {
+        linkedUidRef.current = null;
         setResolvedMember(null);
         return;
       }
       if (membersLoading) return;
-      if (linkedUidRef.current === user.uid && resolvedMember) return;
+      if (linkedUidRef.current === user.uid) return;
 
-      const linked = await linkAuthUser({
-        uid: user.uid,
-        email: user.email ?? "",
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-      });
+      try {
+        const linked = await linkAuthUser({
+          uid: user.uid,
+          email: user.email ?? "",
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+        });
 
-      if (cancelled) return;
-      linkedUidRef.current = user.uid;
+        if (cancelled) return;
 
-      if (linked) {
-        setResolvedMember(linked);
-        return;
+        linkedUidRef.current = user.uid;
+
+        if (linked) {
+          setResolvedMember(linked);
+          return;
+        }
+
+        setResolvedMember({
+          id: user.uid,
+          authUid: user.uid,
+          fullName: user.displayName ?? user.email?.split("@")[0] ?? "New Member",
+          personalEmail: user.email ?? "",
+          roleIds: ["role_volunteer"],
+          teamIds: [],
+          status: "pending",
+          onboardingStatus: "not_started",
+          searchKeywords: [],
+          pfpUrl: user.photoURL ?? undefined,
+          joinedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          title: "Volunteer",
+        });
+      } catch (err) {
+        console.warn("[auth] resolve member failed", err);
+        if (cancelled) return;
+        setResolvedMember({
+          id: user.uid,
+          authUid: user.uid,
+          fullName: user.displayName ?? user.email?.split("@")[0] ?? "New Member",
+          personalEmail: user.email ?? "",
+          roleIds: ["role_volunteer"],
+          teamIds: [],
+          status: "pending",
+          onboardingStatus: "not_started",
+          searchKeywords: [],
+          pfpUrl: user.photoURL ?? undefined,
+          joinedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          title: "Volunteer",
+        });
+        linkedUidRef.current = user.uid;
       }
-
-      setResolvedMember({
-        id: user.uid,
-        authUid: user.uid,
-        fullName: user.displayName ?? user.email?.split("@")[0] ?? "New Member",
-        personalEmail: user.email ?? "",
-        roleIds: ["role_volunteer"],
-        teamIds: [],
-        status: "pending",
-        onboardingStatus: "not_started",
-        searchKeywords: [],
-        pfpUrl: user.photoURL ?? undefined,
-        joinedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        title: "Volunteer",
-      });
     }
 
     void resolve();
     return () => {
       cancelled = true;
     };
-    // intentionally omit resolvedMember / members — link once per uid
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, membersLoading, linkAuthUser]);
+  }, [user, membersLoading]);
 
   // Soft-sync roster updates into the signed-in member without wiping newer local edits
   useEffect(() => {

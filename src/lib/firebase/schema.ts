@@ -11,10 +11,13 @@
  *   Full volunteer profile (source of truth for directory + auth matching)
  *   personalEmail, schoolEmail?, cengEmail?, cengEmailAliases?[],
  *   emails[] — lowercased union of all emails for array-contains queries
- *   authUid?, roleIds[], teamIds[], volunteerHoursUrl?, status, onboardingStatus, …
+ *   authUid?, roleIds[], teamIds[], volunteerHoursUrl?, status, onboardingStatus,
+ *   onboarding? { docuseal…, signingUrl, signedDocumentUrl, … }
  *
  * users/{uid}  (Firebase Auth uid)
  *   Thin link: memberId, email, displayName?, linkedAt, updatedAt
+ *
+ * onboardingEvents/{id} — audit log for invites / reviews / deletes
  *
  * roles/{roleId} · teams/{teamId} · sessions/{sessionId}
  * classes/{classId} · classAssignments/{assignmentId}
@@ -22,7 +25,7 @@
  * Security notes:
  * - Auth via Firebase Auth (Google + email/password)
  * - Never store Zoom account passwords — meeting links only
- * - Start with test-mode rules while seeding; tighten via firestore.rules
+ * - Onboarding fields updated via API with caller ID token (see firestore.rules)
  */
 
 export const COLLECTIONS = {
@@ -37,6 +40,7 @@ export const COLLECTIONS = {
   tasks: "tasks",
   trainingEvents: "trainingEvents",
   resources: "resources",
+  onboardingEvents: "onboardingEvents",
   meta: "meta",
 } as const;
 

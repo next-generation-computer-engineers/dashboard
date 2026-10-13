@@ -78,7 +78,35 @@ export type Permission =
   | "admin:sessions"
   | "training:manage"
   | "profile:edit_own"
-  | "profile:edit_any";
+  | "profile:edit_any"
+  | "onboarding:invite"
+  | "onboarding:review"
+  | "onboarding:read";
+
+/** DocuSeal / waiver tracking — written by onboarding API routes */
+export type DocusealOnboardingStatus =
+  | "sent"
+  | "opened"
+  | "completed"
+  | "declined"
+  | "expired"
+  | "revoked";
+
+export interface MemberOnboarding {
+  docusealTemplateId: string;
+  docusealSubmissionId?: number;
+  submitterEmail: string;
+  sentAt: string;
+  status: DocusealOnboardingStatus;
+  signingUrl?: string;
+  signedDocumentUrl?: string;
+  signedPdfStoragePath?: string;
+  signedAt?: string;
+  reviewedAt?: string;
+  reviewedByMemberId?: string;
+  reviewNotes?: string;
+  invitedByMemberId?: string;
+}
 
 export interface Member {
   id: string;
@@ -109,6 +137,8 @@ export interface Member {
   teamIds: string[];
   status: MemberStatus;
   onboardingStatus: OnboardingStatus;
+  /** Waiver / forms tracking */
+  onboarding?: MemberOnboarding;
   /** Denormalized for directory search */
   searchKeywords: string[];
   title?: string;

@@ -24,8 +24,10 @@ html[data-theme="dark"] {
   --accent-muted: #6b8fd4;
 
   --success: #6f9f88;
+  --success-soft: rgba(111, 159, 136, 0.14);
   --warning: #c4a070;
   --danger: #c47a7c;
+  --danger-soft: rgba(196, 122, 124, 0.14);
   --info: #7a8fa3;
 
   --radius-sm: 8px;
@@ -66,8 +68,10 @@ html[data-theme="light"] {
   --accent-muted: #3d6fd0;
 
   --success: #3d8b6e;
+  --success-soft: rgba(61, 139, 110, 0.12);
   --warning: #b8792e;
   --danger: #c45c5e;
+  --danger-soft: rgba(196, 92, 94, 0.12);
   --info: #4f7594;
 
   --focus-ring: rgba(30, 86, 201, 0.4);

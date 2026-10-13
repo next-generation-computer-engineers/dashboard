@@ -11,6 +11,7 @@ import {
   Calendar,
   AlertTriangle,
   Check,
+  ClipboardCheck,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useMembers } from "@/lib/members/MembersProvider";
@@ -232,6 +233,19 @@ export default function AdminPage() {
         title="Control center"
         description="Member management, roles, class staffing, and session setup."
       />
+
+      <Link
+        href="/admin/onboarding"
+        className="mb-6 flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-3 transition-colors hover:bg-[var(--surface-hover)]"
+      >
+        <ClipboardCheck className="h-4 w-4 text-[var(--accent)]" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium">Volunteer onboarding</p>
+          <p className="text-[12px] text-secondary">
+            Invite, email waivers, review signatures, approve or revoke access
+          </p>
+        </div>
+      </Link>
 
       <div className="mb-6 flex gap-1 overflow-x-auto rounded-2xl glass-inset p-1">
         {tabs.map((t) => {

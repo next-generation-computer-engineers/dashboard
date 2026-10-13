@@ -9,31 +9,56 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.memberId;
     }
 
+    function linkedMember() {
+      return get(/databases/$(database)/documents/members/$(memberDoc()));
+    }
+
     function isAdmin() {
       return signedIn()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && get(/databases/$(database)/documents/members/$(memberDoc())).data.roleIds.hasAny(['role_admin']);
+        && linkedMember().data.roleIds.hasAny(['role_admin']);
     }
 
-    // Roster — readable by signed-in volunteers; writes via seed/admin
+    function canOnboard() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && linkedMember().data.roleIds.hasAny([
+          'role_admin',
+          'role_core_team',
+          'role_vp_onboarding',
+          'role_vp_training'
+        ]);
+    }
+
     match /members/{memberId} {
       allow read: if signedIn();
-      allow create, update: if isAdmin()
-        || (signedIn()
-            && request.auth.uid == resource.data.authUid
-            && request.resource.data.diff(resource.data).affectedKeys()
-                .hasOnly(['bio', 'phone', 'preferredName', 'linkedIn', 'portfolio', 'pfpUrl', 'volunteerHoursUrl', 'updatedAt', 'authUid', 'emails']));
+
+      allow update: if signedIn()
+        && request.auth.uid == resource.data.authUid
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['bio', 'phone', 'preferredName', 'linkedIn', 'portfolio', 'pfpUrl', 'volunteerHoursUrl', 'updatedAt', 'authUid', 'emails']);
+
+      // Volunteer marks own forms signed / needs_review
+      allow update: if signedIn()
+        && request.auth.uid == resource.data.authUid
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['onboarding', 'onboardingStatus', 'updatedAt'])
+        && resource.data.onboardingStatus in ['not_started', 'in_progress']
+        && request.resource.data.onboardingStatus in ['in_progress', 'needs_review'];
+
       allow update: if signedIn()
         && request.resource.data.diff(resource.data).affectedKeys()
             .hasOnly(['authUid', 'updatedAt', 'pfpUrl', 'emails']);
-      allow delete: if isAdmin();
+
+      allow create: if isAdmin() || canOnboard();
+      allow update: if isAdmin() || canOnboard();
+      allow delete: if isAdmin() || canOnboard();
     }
 
-    // Auth uid → member link
     match /users/{uid} {
-      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin() || canOnboard());
       allow create, update: if signedIn() && request.auth.uid == uid;
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() || canOnboard();
     }
 
     match /roles/{id} {
@@ -59,6 +84,12 @@ service cloud.firestore {
     match /classAssignments/{id} {
       allow read: if signedIn();
       allow write: if isAdmin();
+    }
+
+    match /onboardingEvents/{id} {
+      allow read: if isAdmin() || canOnboard();
+      allow create: if canOnboard();
+      allow update, delete: if false;
     }
 
     match /meta/{id} {

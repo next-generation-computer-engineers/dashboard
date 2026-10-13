@@ -15,6 +15,7 @@ import {
   X,
   CalendarDays,
   Settings,
+  ClipboardCheck,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (!member) return null;
 
   const canAdmin = hasPermission(member.roleIds, "admin:access");
+  const canOnboard =
+    hasPermission(member.roleIds, "onboarding:invite") ||
+    hasPermission(member.roleIds, "onboarding:review") ||
+    hasPermission(member.roleIds, "onboarding:read");
   const primaryRole = getRolesByIds(member.roleIds)[0];
   const name = displayName(member);
 
@@ -75,30 +80,59 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         );
       })}
 
-      {canAdmin && (
+      {(canAdmin || canOnboard) && (
         <>
           <div className="my-2 mx-2 h-px bg-[var(--border)]" />
-          <Link
-            href="/admin"
-            onClick={onNavigate}
-            className={cn(
-              "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm transition-colors",
-              pathname.startsWith("/admin")
-                ? "bg-[var(--accent-soft)] text-[var(--text-primary)]"
-                : "text-secondary hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
-            )}
-          >
-            <Shield
+          {canOnboard && (
+            <Link
+              href="/admin/onboarding"
+              onClick={onNavigate}
               className={cn(
-                "h-4 w-4 shrink-0",
-                pathname.startsWith("/admin")
-                  ? "text-[var(--accent)]"
-                  : "opacity-70"
+                "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm transition-colors",
+                pathname.startsWith("/admin/onboarding")
+                  ? "bg-[var(--accent-soft)] text-[var(--text-primary)]"
+                  : "text-secondary hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
               )}
-              strokeWidth={1.5}
-            />
-            {!collapsed && <span>Admin</span>}
-          </Link>
+            >
+              <ClipboardCheck
+                className={cn(
+                  "h-4 w-4 shrink-0",
+                  pathname.startsWith("/admin/onboarding")
+                    ? "text-[var(--accent)]"
+                    : "opacity-70"
+                )}
+                strokeWidth={1.5}
+              />
+              {!collapsed && <span>Onboarding</span>}
+            </Link>
+          )}
+          {canAdmin && (
+            <Link
+              href="/admin"
+              onClick={onNavigate}
+              className={cn(
+                "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm transition-colors",
+                pathname === "/admin" ||
+                  (pathname.startsWith("/admin/") &&
+                    !pathname.startsWith("/admin/onboarding"))
+                  ? "bg-[var(--accent-soft)] text-[var(--text-primary)]"
+                  : "text-secondary hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
+              )}
+            >
+              <Shield
+                className={cn(
+                  "h-4 w-4 shrink-0",
+                  pathname === "/admin" ||
+                    (pathname.startsWith("/admin/") &&
+                      !pathname.startsWith("/admin/onboarding"))
+                    ? "text-[var(--accent)]"
+                    : "opacity-70"
+                )}
+                strokeWidth={1.5}
+              />
+              {!collapsed && <span>Admin</span>}
+            </Link>
+          )}
         </>
       )}
     </nav>
