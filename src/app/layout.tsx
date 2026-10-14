@@ -4,6 +4,7 @@ import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { AuthGate } from "@/lib/auth/AuthGate";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { MembersProvider } from "@/lib/members/MembersProvider";
+import { SessionsProvider } from "@/lib/sessions/SessionsProvider";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -44,9 +45,11 @@ export default function RootLayout({
       <body className="min-h-full font-sans">
         <ThemeProvider>
           <MembersProvider>
-            <AuthProvider>
-              <AuthGate>{children}</AuthGate>
-            </AuthProvider>
+            <SessionsProvider>
+              <AuthProvider>
+                <AuthGate>{children}</AuthGate>
+              </AuthProvider>
+            </SessionsProvider>
           </MembersProvider>
         </ThemeProvider>
       </body>

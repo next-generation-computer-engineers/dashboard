@@ -13,7 +13,7 @@ import {
   ExternalLink,
   CalendarPlus,
 } from "lucide-react";
-import { getClass } from "@/data/seed";
+import { useSessions } from "@/lib/sessions/SessionsProvider";
 import { cn } from "@/lib/utils";
 import {
   googleCalendarUrlForClass,
@@ -22,6 +22,7 @@ import {
 
 export default function ClassDayPage() {
   const params = useParams<{ id: string }>();
+  const { getClass } = useSessions();
   const cls = getClass(params.id);
 
   if (!cls) {

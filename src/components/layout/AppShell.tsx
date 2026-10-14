@@ -16,6 +16,8 @@ import {
   CalendarDays,
   Settings,
   ClipboardCheck,
+  CalendarRange,
+  GraduationCap,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -107,31 +109,69 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           )}
           {canAdmin && (
-            <Link
-              href="/admin"
-              onClick={onNavigate}
-              className={cn(
-                "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm transition-colors",
-                pathname === "/admin" ||
-                  (pathname.startsWith("/admin/") &&
-                    !pathname.startsWith("/admin/onboarding"))
-                  ? "bg-[var(--accent-soft)] text-[var(--text-primary)]"
-                  : "text-secondary hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
-              )}
-            >
-              <Shield
+            <>
+              <Link
+                href="/admin/sessions"
+                onClick={onNavigate}
                 className={cn(
-                  "h-4 w-4 shrink-0",
-                  pathname === "/admin" ||
-                    (pathname.startsWith("/admin/") &&
-                      !pathname.startsWith("/admin/onboarding"))
-                    ? "text-[var(--accent)]"
-                    : "opacity-70"
+                  "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm transition-colors",
+                  pathname.startsWith("/admin/sessions")
+                    ? "bg-[var(--accent-soft)] text-[var(--text-primary)]"
+                    : "text-secondary hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                 )}
-                strokeWidth={1.5}
-              />
-              {!collapsed && <span>Admin</span>}
-            </Link>
+              >
+                <CalendarRange
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    pathname.startsWith("/admin/sessions")
+                      ? "text-[var(--accent)]"
+                      : "opacity-70"
+                  )}
+                  strokeWidth={1.5}
+                />
+                {!collapsed && <span>Sessions</span>}
+              </Link>
+              <Link
+                href="/admin/classes"
+                onClick={onNavigate}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm transition-colors",
+                  pathname.startsWith("/admin/classes")
+                    ? "bg-[var(--accent-soft)] text-[var(--text-primary)]"
+                    : "text-secondary hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
+                )}
+              >
+                <GraduationCap
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    pathname.startsWith("/admin/classes")
+                      ? "text-[var(--accent)]"
+                      : "opacity-70"
+                  )}
+                  strokeWidth={1.5}
+                />
+                {!collapsed && <span>All classes</span>}
+              </Link>
+              <Link
+                href="/admin"
+                onClick={onNavigate}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm transition-colors",
+                  pathname === "/admin"
+                    ? "bg-[var(--accent-soft)] text-[var(--text-primary)]"
+                    : "text-secondary hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
+                )}
+              >
+                <Shield
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    pathname === "/admin" ? "text-[var(--accent)]" : "opacity-70"
+                  )}
+                  strokeWidth={1.5}
+                />
+                {!collapsed && <span>Admin</span>}
+              </Link>
+            </>
           )}
         </>
       )}

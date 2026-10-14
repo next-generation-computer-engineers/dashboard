@@ -12,6 +12,8 @@ import {
   AlertTriangle,
   Check,
   ClipboardCheck,
+  CalendarRange,
+  GraduationCap,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useMembers } from "@/lib/members/MembersProvider";
@@ -234,18 +236,38 @@ export default function AdminPage() {
         description="Member management, roles, class staffing, and session setup."
       />
 
-      <Link
-        href="/admin/onboarding"
-        className="mb-6 flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-3 transition-colors hover:bg-[var(--surface-hover)]"
-      >
-        <ClipboardCheck className="h-4 w-4 text-[var(--accent)]" />
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">Volunteer onboarding</p>
-          <p className="text-[12px] text-secondary">
-            Invite, email waivers, review signatures, approve or revoke access
-          </p>
-        </div>
-      </Link>
+      <div className="mb-6 grid gap-2 sm:grid-cols-3">
+        <Link
+          href="/admin/onboarding"
+          className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-3 transition-colors hover:bg-[var(--surface-hover)]"
+        >
+          <ClipboardCheck className="h-4 w-4 text-[var(--accent)]" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">Onboarding</p>
+            <p className="text-[12px] text-secondary">Invites &amp; waivers</p>
+          </div>
+        </Link>
+        <Link
+          href="/admin/sessions"
+          className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-3 transition-colors hover:bg-[var(--surface-hover)]"
+        >
+          <CalendarRange className="h-4 w-4 text-[var(--accent)]" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">Sessions</p>
+            <p className="text-[12px] text-secondary">Create &amp; import</p>
+          </div>
+        </Link>
+        <Link
+          href="/admin/classes"
+          className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] px-4 py-3 transition-colors hover:bg-[var(--surface-hover)]"
+        >
+          <GraduationCap className="h-4 w-4 text-[var(--accent)]" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">Classes</p>
+            <p className="text-[12px] text-secondary">Staffing &amp; links</p>
+          </div>
+        </Link>
+      </div>
 
       <div className="mb-6 flex gap-1 overflow-x-auto rounded-2xl glass-inset p-1">
         {tabs.map((t) => {
@@ -798,10 +820,24 @@ export default function AdminPage() {
       )}
 
       {tab === "sessions" && (
-        <GlassCard>
+        <GlassCard className="space-y-3">
           <p className="text-sm text-secondary">
-            Jan 12 – May 30, 2026 · {CLASSES.length} classes ·{" "}
-            {allAssignments.length} assignments · {TEAMS.length} teams
+            Manage sessions and import class sheets from the dedicated Sessions
+            admin.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/sessions">
+              <Button size="sm">Open sessions</Button>
+            </Link>
+            <Link href="/admin/classes">
+              <Button size="sm" variant="secondary">
+                Classes overview
+              </Button>
+            </Link>
+          </div>
+          <p className="text-[12px] text-tertiary">
+            Seed catalog: {CLASSES.length} classes · {allAssignments.length}{" "}
+            assignments · {TEAMS.length} teams
           </p>
         </GlassCard>
       )}

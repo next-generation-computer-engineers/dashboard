@@ -2,18 +2,19 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { CLASSES } from "@/data/seed";
+import { useSessions } from "@/lib/sessions/SessionsProvider";
 import { useClassAssignments } from "@/lib/classes/assignmentsStore";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 export default function ClassesPage() {
   const { member } = useAuth();
+  const { classes } = useSessions();
   const allAssignments = useClassAssignments((s) => s.assignments);
   if (!member) return null;
 
   const mine = allAssignments.filter((a) => a.memberId === member.id);
   const myClassIds = new Set(mine.map((a) => a.classId));
-  const myClasses = CLASSES.filter((c) => myClassIds.has(c.id));
+  const myClasses = classes.filter((c) => myClassIds.has(c.id));
   const list = myClasses.length > 0 ? myClasses : [];
   const showingNone = list.length === 0;
 

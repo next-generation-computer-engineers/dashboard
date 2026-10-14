@@ -73,17 +73,17 @@ service cloud.firestore {
 
     match /sessions/{id} {
       allow read: if signedIn();
-      allow write: if isAdmin();
+      allow create, update, delete: if isAdmin() || canOnboard();
     }
 
     match /classes/{id} {
       allow read: if signedIn();
-      allow write: if isAdmin();
+      allow create, update, delete: if isAdmin() || canOnboard();
     }
 
     match /classAssignments/{id} {
       allow read: if signedIn();
-      allow write: if isAdmin();
+      allow create, update, delete: if isAdmin() || canOnboard();
     }
 
     match /onboardingEvents/{id} {
