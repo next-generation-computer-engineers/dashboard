@@ -11,6 +11,7 @@ import {
   FileSignature,
   Ban,
   RotateCcw,
+  Paperclip,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useMembers } from "@/lib/members/MembersProvider";
@@ -456,19 +457,53 @@ export default function AdminOnboardingPage() {
                             size="sm"
                             variant="secondary"
                             loading={busy}
-                            onClick={() =>
+                            onClick={() => {
+                              const docInput = window.prompt(
+                                "Optional: Paste the signed document PDF URL (or leave blank to mark signed):"
+                              );
+                              if (docInput === null) return;
                               void runAction(m.id, () =>
                                 onboardingFetch("/api/onboarding/mark-signed", {
                                   method: "POST",
-                                  json: { memberId: m.id },
+                                  json: {
+                                    memberId: m.id,
+                                    documentUrl: docInput.trim() || undefined,
+                                  },
                                 })
-                              )
-                            }
+                              );
+                            }}
                           >
                             <Check className="h-3 w-3" />
                             Mark signed
                           </Button>
                         )}
+
+                      {canReview && !docUrl && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          loading={busy}
+                          title="Attach signed document PDF URL"
+                          onClick={() => {
+                            const docInput = window.prompt(
+                              "Paste the signed document PDF URL:"
+                            );
+                            if (!docInput?.trim()) return;
+                            void runAction(m.id, () =>
+                              onboardingFetch("/api/onboarding/mark-signed", {
+                                method: "POST",
+                                json: {
+                                  memberId: m.id,
+                                  documentUrl: docInput.trim(),
+                                },
+                              })
+                            );
+                          }}
+                        >
+                          <Paperclip className="h-3 w-3" />
+                          Attach doc
+                        </Button>
+                      )}
 
                       {canReview && m.onboardingStatus === "needs_review" && (
                         <>

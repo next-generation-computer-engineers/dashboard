@@ -206,6 +206,19 @@ export default function MemberProfilePage() {
                   label="Onboarding"
                   value={member.onboardingStatus.replace(/_/g, " ")}
                 />
+                {member.onboarding?.signedDocumentUrl && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-secondary">Waiver</span>
+                    <a
+                      href={member.onboarding.signedDocumentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-[var(--accent)] hover:underline"
+                    >
+                      View signed copy ↗
+                    </a>
+                  </div>
+                )}
               </GlassCard>
             </div>
           </div>

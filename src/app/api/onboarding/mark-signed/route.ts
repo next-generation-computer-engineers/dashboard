@@ -51,6 +51,22 @@ export async function POST(req: Request) {
       target.onboardingStatus === "needs_review" ||
       target.onboardingStatus === "complete"
     ) {
+      if (
+        body.documentUrl &&
+        body.documentUrl !== target.onboarding?.signedDocumentUrl
+      ) {
+        await patchMember(idToken, target.id, {
+          onboarding: {
+            ...(target.onboarding ?? {}),
+            signedDocumentUrl: body.documentUrl,
+          },
+        });
+        return Response.json({
+          ok: true,
+          onboardingStatus: target.onboardingStatus,
+          message: "Signed document link updated.",
+        });
+      }
       return Response.json({ ok: true, idempotent: true });
     }
 

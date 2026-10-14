@@ -17,7 +17,7 @@ export function getDocusealConfig() {
     "6377250";
   const formSrc =
     process.env.NEXT_PUBLIC_DOCUSEAL_FORM_SRC?.trim() ||
-    "https://docuseal.com/d/DaJ1y4oSuAcDiM";
+    "https://docuseal.com/d/kn2Uj5bNhsHCyx";
   const webhookSecret = process.env.DOCUSEAL_WEBHOOK_SECRET?.trim();
 
   return { apiKey, templateId, formSrc, webhookSecret };

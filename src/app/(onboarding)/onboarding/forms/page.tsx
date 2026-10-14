@@ -11,7 +11,7 @@ import { onboardingFetch } from "@/lib/onboarding/client";
 
 const FORM_SRC =
   process.env.NEXT_PUBLIC_DOCUSEAL_FORM_SRC ||
-  "https://docuseal.com/d/DaJ1y4oSuAcDiM";
+  "https://docuseal.com/d/kn2Uj5bNhsHCyx";
 
 export default function OnboardingFormsPage() {
   const { member } = useAuth();
@@ -39,20 +39,26 @@ export default function OnboardingFormsPage() {
       submission?: {
         id?: number;
         combined_document_url?: string | null;
+        url?: string | null;
       };
       documents?: { url?: string }[];
+      submission_url?: string;
     }) => {
       setSaving(true);
       setError("");
       try {
+        const docUrl =
+          data.submission?.combined_document_url ||
+          data.documents?.[0]?.url ||
+          data.submission?.url ||
+          data.submission_url;
+
         await onboardingFetch("/api/onboarding/complete-embed", {
           method: "POST",
           json: {
             submissionId:
               data.submission?.id ?? data.submission_id ?? data.id,
-            documentUrl:
-              data.submission?.combined_document_url ||
-              data.documents?.[0]?.url,
+            documentUrl: docUrl || undefined,
           },
         });
         await refresh();
